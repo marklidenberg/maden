@@ -87,7 +87,17 @@ commented copy, so the merge stops and asks the question worth asking: does ours
 
 Avoid mutations: a deletion beside an addition says the same thing and merges better.
 
-A file the fork adds whole needs no region — its change doc says it is ours.
+A file the fork adds whole is wrapped whole, from its first line to its last:
+
+```ts
+// fork-add ai-local-provider
+
+'use client'
+
+export const localProvider = ...
+
+// end-fork-add ai-local-provider
+```
 
 The comment is the language's own:
 
@@ -133,5 +143,5 @@ A change upstream has since adopted: drop the region, drop the doc.
 ## Rules
 
 - Additions and deletions; a mutation only where neither will do
-- A region per change, a change doc per region
+- A region per change, a change doc per region — a file of ours too, wrapped whole
 - As few upstream lines as possible — new code in new files, reached from one region

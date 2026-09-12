@@ -1,5 +1,11 @@
 import { imageTagToMarkdown } from '@/lib/html-markdown';
 
+// fork-add markdown-angle-text
+
+import { applyOutsideCodeSpans, escapeTextAngles } from '@/lib/markdown-angle-text';
+
+// end-fork-add markdown-angle-text
+
 const normalizeImageParagraph = (inner: string): string | null => {
   const pieces: string[] = [];
   const hasLineBreak = /<br\s*\/?>/i.test(inner);
@@ -225,6 +231,18 @@ export const normalizeOpenDocumentMarkdown = (markdown: string): string => {
     result = normalizeHtmlBreaks(result);
     result = normalizeStandaloneFormattedLineBreaks(result);
 
-    return escapeMarkdownPlaceholderAngles(result);
+    // fork-delete markdown-angle-text
+
+    // return escapeMarkdownPlaceholderAngles(result);
+
+    // end-fork-delete markdown-angle-text
+
+    // fork-add markdown-angle-text
+
+    return applyOutsideCodeSpans(result, (outsideCode) =>
+      escapeMarkdownPlaceholderAngles(escapeTextAngles(outsideCode))
+    );
+
+    // end-fork-add markdown-angle-text
   });
 };

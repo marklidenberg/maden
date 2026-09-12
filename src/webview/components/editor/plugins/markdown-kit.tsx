@@ -26,6 +26,12 @@ import {
   EXCALIDRAW_MDX_DATA_ATTR,
 } from '@/lib/excalidraw-markdown';
 
+// fork-add markdown-no-escape
+
+import { markdownStringifyOptions } from '@/lib/markdown-serialize-options';
+
+// end-fork-add markdown-no-escape
+
 const diagramLangToDrawingType = (lang: unknown): CodeDrawingType | null => {
   if (typeof lang !== 'string') return null;
 
@@ -241,6 +247,13 @@ export const MarkdownKit = [
     options: {
       plainMarks: [KEYS.suggestion, KEYS.comment],
       remarkPlugins: [remarkMath, remarkGfm, remarkMdx, remarkMention],
+
+      // fork-add markdown-no-escape
+
+      remarkStringifyOptions: markdownStringifyOptions,
+
+      // end-fork-add markdown-no-escape
+
       rules: codeDrawingMarkdownRules,
     },
   }),

@@ -100,6 +100,14 @@ export type WebviewToHostMessage =
   | {
     type: 'openSourceView';
   }
+  // fork-add link-open
+
+  | {
+    type: 'openLink';
+    url: string;
+  }
+
+  // end-fork-add link-open
   | {
     type: 'webviewError';
     message: string;

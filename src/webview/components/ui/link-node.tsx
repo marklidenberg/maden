@@ -11,6 +11,12 @@ import { PlateElement } from 'platejs/react';
 
 import { cn } from '@/lib/utils';
 
+// fork-add link-open
+
+import { openLink } from '@/lib/open-link';
+
+// end-fork-add link-open
+
 export function LinkElement(props: PlateElementProps<TLinkElement>) {
   const suggestionData = props.editor
     .getApi(SuggestionPlugin)
@@ -33,6 +39,21 @@ export function LinkElement(props: PlateElementProps<TLinkElement>) {
         onMouseOver: (e) => {
           e.stopPropagation();
         },
+
+        // fork-add link-open
+
+        onClick: (e) => {
+          // A press opens it; a selection dragged across it does not.
+
+          const selection = document.getSelection();
+
+          if (selection && !selection.isCollapsed) return;
+
+          e.preventDefault();
+          openLink(props.element.url);
+        },
+
+        // end-fork-add link-open
       }}
     >
       {props.children}

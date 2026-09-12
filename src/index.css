@@ -433,6 +433,12 @@
   .maden-link {
     color: var(--brand);
     text-decoration-color: color-mix(in oklab, var(--brand) 72%, transparent);
+
+    /* fork-add link-open */
+
+    cursor: pointer;
+
+    /* end-fork-add link-open */
   }
 
   body[data-maden-theme='confluence'] .page-content {

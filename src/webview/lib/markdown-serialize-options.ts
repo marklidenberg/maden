@@ -1,3 +1,5 @@
+// fork-add markdown-no-escape
+
 // The markdown serializer escapes anything that could ever start a construct, so text
 // typed as `[~]` is written back as `\[~\]` and `step_a` as `step\_a`. Keep only the
 // escapes a construct we are inside actually needs — a table cell's `|`, a link label's
@@ -83,3 +85,5 @@ export const markdownStringifyOptions = {
   },
   join: [joinListItemWithNestedList],
 };
+
+// end-fork-add markdown-no-escape

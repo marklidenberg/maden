@@ -1,3 +1,5 @@
+// fork-add link-open
+
 import { resolveLinkTarget } from '../../shared/link-target';
 
 import { postToHost } from '@/vscode';
@@ -18,3 +20,5 @@ export const openLink = (url: string) => {
     window.open(target.url, '_blank', 'noopener,noreferrer');
   }
 };
+
+// end-fork-add link-open

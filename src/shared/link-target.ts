@@ -1,3 +1,5 @@
+// fork-add link-open
+
 export type LinkTarget =
   | { kind: 'external'; url: string }
   | { kind: 'file'; path: string }
@@ -76,3 +78,5 @@ export const resolveLinkTarget = (url: string, documentPath: string): LinkTarget
     path: isAbsolute ? path : resolveFrom(documentPath, path),
   };
 };
+
+// end-fork-add link-open

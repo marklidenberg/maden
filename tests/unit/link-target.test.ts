@@ -1,3 +1,5 @@
+// fork-add link-open
+
 import { describe, expect, it } from 'vitest';
 
 import { resolveLinkTarget } from '../../src/shared/link-target';
@@ -69,3 +71,5 @@ describe('resolveLinkTarget', () => {
     });
   });
 });
+
+// end-fork-add link-open

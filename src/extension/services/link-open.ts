@@ -1,3 +1,5 @@
+// fork-add link-open
+
 import * as vscode from 'vscode';
 
 import { resolveLinkTarget } from '../../shared/link-target';
@@ -38,3 +40,5 @@ export const openLink = async (url: string, documentPath: string) => {
 
   await vscode.commands.executeCommand('vscode.open', uri);
 };
+
+// end-fork-add link-open

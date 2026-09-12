@@ -1,3 +1,5 @@
+// fork-add markdown-no-escape
+
 import { describe, expect, it } from 'vitest';
 
 import { reconcileMarkdownPreservingUnchangedFormatting } from '../../src/shared/markdown-format-reconcile';
@@ -71,3 +73,5 @@ describe('markdown serialization without escapes', () => {
     ).toBe(PLAN);
   });
 });
+
+// end-fork-add markdown-no-escape

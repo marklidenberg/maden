@@ -22,6 +22,11 @@ import {
   postToOtherDocumentPanels,
 } from './services/document-panel-messages';
 import { createDocumentSession, createStateMessage } from './services/document-session';
+// fork-add link-open
+
+import { openLink } from './services/link-open';
+
+// end-fork-add link-open
 import { getWebviewHtml } from './services/webview-html';
 
 type MarkdownCustomDocument = vscode.CustomDocument & {
@@ -405,6 +410,15 @@ export class MadenMarkdownEditorProvider
             void vscode.window.showInformationMessage(`Exported to ${target.fsPath}`);
             return;
           }
+
+          // fork-add link-open
+
+          if (message.type === 'openLink') {
+            await openLink(message.url, currentFilePath());
+            return;
+          }
+
+          // end-fork-add link-open
 
           if (message.type === 'openSourceView') {
             await vscode.commands.executeCommand(

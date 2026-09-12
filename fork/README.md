@@ -26,6 +26,20 @@ Nothing is written into `main` — it stays upstream's, to the byte.
 - `upstream` — https://github.com/alialek/maden
 - `origin` — https://github.com/marklidenberg/maden
 
+## Install
+
+The extension runs from a clone, symlinked into vscode:
+
+```bash
+git clone -b fork-fba28f70 https://github.com/marklidenberg/maden ~/Documents/coding/repos/marklidenberg/maden
+npm install && npm run build
+ln -s ~/Documents/coding/repos/marklidenberg/maden ~/.vscode/extensions/alialek.maden-0.0.6
+```
+
+The id stays upstream's, so the marketplace copy goes first.
+
+`fork/deploy` is the skill that pulls and rebuilds; `Developer: Reload Window` picks it up.
+
 ## Regions
 
 Every touch of an upstream file is wrapped in a region, named after its change.

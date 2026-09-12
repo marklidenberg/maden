@@ -1,3 +1,11 @@
+<!-- fork-start addition fork-notice -->
+
+# Fork
+
+This is a fork of [alialek/maden](https://github.com/alialek/maden). How it works: [fork/README.md](fork/README.md).
+
+<!-- fork-stop addition fork-notice -->
+
 # Maden
 
 Write Markdown documents, AI skills, prompts, and agent instructions in VS Code without fighting Markdown syntax.

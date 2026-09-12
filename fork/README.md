@@ -33,27 +33,27 @@ Every touch of an upstream file is wrapped in a region, named after its change.
 An addition — ours, new:
 
 ```ts
-// fork-start addition ai-local-provider
+// fork-start-addition ai-local-provider
 
 export const localProvider = ...
 
-// fork-stop addition ai-local-provider
+// fork-stop-addition ai-local-provider
 ```
 
 A deletion — upstream's block stays, commented out:
 
 ```ts
-// fork-start deletion telemetry-ping
+// fork-start-deletion telemetry-ping
 
 // void reportUsage(editorId)
 
-// fork-stop deletion telemetry-ping
+// fork-stop-deletion telemetry-ping
 ```
 
 A mutation — upstream's block commented out above ours:
 
 ```ts
-// fork-start mutation ai-timeout
+// fork-start-mutation ai-timeout
 
 // - Old
 
@@ -63,7 +63,7 @@ A mutation — upstream's block commented out above ours:
 
 const timeout = 5_000
 
-// fork-stop mutation ai-timeout
+// fork-stop-mutation ai-timeout
 ```
 
 The original never leaves the file. Upstream's next edit to those lines cannot apply over the
@@ -75,17 +75,17 @@ A file the fork adds whole needs no region — its change doc says it is ours.
 
 The comment is the language's own:
 
-- `.ts` `.tsx` `.js` `.mjs` — `// fork-start ...`
-- `.css` — `/* fork-start ... */`
-- `.md` `.html` — `<!-- fork-start ... -->`
-- `.yml` `.sh` — `# fork-start ...`
+- `.ts` `.tsx` `.js` `.mjs` — `// fork-start-<kind> <name>`
+- `.css` — `/* fork-start-<kind> <name> */`
+- `.md` `.html` — `<!-- fork-start-<kind> <name> -->`
+- `.yml` `.sh` — `# fork-start-<kind> <name>`
 - `.json` — no comments; the change doc carries it alone
 
 Find them:
 
 ```bash
-git grep -n "fork-start"
-git grep -n "fork-start .* ai-local-provider"
+git grep -n "fork-start-"
+git grep -n "fork-.*ai-local-provider"
 ```
 
 ## Changes

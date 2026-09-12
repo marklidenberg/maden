@@ -28,15 +28,17 @@ Nothing is written into `main` — it stays upstream's, to the byte.
 
 ## Install
 
-The extension runs from a clone, symlinked into vscode:
+`$MADEN_REPO` is the clone the extension runs from, symlinked into vscode:
 
 ```bash
-git clone -b fork-fba28f70 https://github.com/marklidenberg/maden ~/Documents/coding/repos/marklidenberg/maden
-npm install && npm run build
-ln -s ~/Documents/coding/repos/marklidenberg/maden ~/.vscode/extensions/alialek.maden-0.0.6
+export MADEN_REPO=~/…/maden                                                    # in `.zshrc`
+git clone -b fork-fba28f70 https://github.com/marklidenberg/maden "$MADEN_REPO"
+cd "$MADEN_REPO" && npm install && npm run build
+ln -s "$MADEN_REPO" ~/.vscode/extensions/alialek.maden-0.0.6
 ```
 
-The id stays upstream's, so the marketplace copy goes first.
+The id stays upstream's, so the marketplace copy goes first. The symlink also needs an entry in
+`~/.vscode/extensions/extensions.json` — vscode loads what is listed there, not what is on disk.
 
 `fork/deploy` is the skill that pulls and rebuilds; `Developer: Reload Window` picks it up.
 

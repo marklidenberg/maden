@@ -4,7 +4,7 @@ description: Deploy maden — the fork pulled, the extension rebuilt. Trigger on
 ---
 
 ```sh
-cd ~/Documents/coding/repos/marklidenberg/maden
+cd "$MADEN_REPO"
 git pull
 npm install
 npm run build

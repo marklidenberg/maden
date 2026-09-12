@@ -4,12 +4,22 @@ A fork of [alialek/maden](https://github.com/alialek/maden), forked at `fba28f70
 
 Upstream keeps moving. Our changes stay marked and documented, so every merge is mechanical.
 
-## Branches
+## Branches and tags
 
 - `main` — upstream, untouched
 - `fork-fba28f70` — the fork
+- `fork-latest` — a tag on the fork branch's tip
 
-The hash is the fork point. It never changes, however far the branch travels.
+The hash is the fork point. It never changes, however far the branch travels. `fork-latest` is how
+to reach the fork without knowing it:
+
+```bash
+git tag -f fork-latest fork-fba28f70
+git push -f origin fork-latest
+```
+
+The repository's GitHub description says this is a fork and points at this file through that tag.
+Nothing is written into `main` — it stays upstream's, to the byte.
 
 ## Remotes
 

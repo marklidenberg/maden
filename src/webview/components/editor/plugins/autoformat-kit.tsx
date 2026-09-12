@@ -178,34 +178,39 @@ const autoformatLists: AutoformatRule[] = [
       });
     },
   },
-  {
-    match: ['[] '],
-    mode: 'block',
-    type: 'list',
-    format: (editor) => {
-      toggleList(editor, {
-        listStyleType: KEYS.listTodo,
-      });
-      editor.tf.setNodes({
-        checked: false,
-        listStyleType: KEYS.listTodo,
-      });
-    },
-  },
-  {
-    match: ['[x] '],
-    mode: 'block',
-    type: 'list',
-    format: (editor) => {
-      toggleList(editor, {
-        listStyleType: KEYS.listTodo,
-      });
-      editor.tf.setNodes({
-        checked: true,
-        listStyleType: KEYS.listTodo,
-      });
-    },
-  },
+
+  // fork-delete task-list-as-text
+
+  // {
+  //   match: ['[] '],
+  //   mode: 'block',
+  //   type: 'list',
+  //   format: (editor) => {
+  //     toggleList(editor, {
+  //       listStyleType: KEYS.listTodo,
+  //     });
+  //     editor.tf.setNodes({
+  //       checked: false,
+  //       listStyleType: KEYS.listTodo,
+  //     });
+  //   },
+  // },
+  // {
+  //   match: ['[x] '],
+  //   mode: 'block',
+  //   type: 'list',
+  //   format: (editor) => {
+  //     toggleList(editor, {
+  //       listStyleType: KEYS.listTodo,
+  //     });
+  //     editor.tf.setNodes({
+  //       checked: true,
+  //       listStyleType: KEYS.listTodo,
+  //     });
+  //   },
+  // },
+
+  // end-fork-delete task-list-as-text
 ];
 
 export const AutoformatKit = [

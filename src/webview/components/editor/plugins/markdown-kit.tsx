@@ -32,6 +32,12 @@ import { markdownStringifyOptions } from '@/lib/markdown-serialize-options';
 
 // end-fork-add markdown-no-escape
 
+// fork-add task-list-as-text
+
+import { remarkTaskListAsText } from '@/lib/markdown-task-list-as-text';
+
+// end-fork-add task-list-as-text
+
 const diagramLangToDrawingType = (lang: unknown): CodeDrawingType | null => {
   if (typeof lang !== 'string') return null;
 
@@ -255,7 +261,18 @@ export const MarkdownKit = [
 
       // fork-add mention-as-typed
 
-      remarkPlugins: [remarkMath, remarkGfm, remarkMdx],
+      remarkPlugins: [
+        remarkMath,
+        remarkGfm,
+
+        // fork-add task-list-as-text
+
+        remarkTaskListAsText,
+
+        // end-fork-add task-list-as-text
+
+        remarkMdx,
+      ],
 
       // end-fork-add mention-as-typed
 

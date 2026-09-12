@@ -1,10 +1,10 @@
-<!-- fork-start-addition fork-notice -->
+<!-- fork-add fork-notice -->
 
 # Fork
 
 This is a fork of [alialek/maden](https://github.com/alialek/maden). How it works: [fork/README.md](fork/README.md).
 
-<!-- fork-stop-addition fork-notice -->
+<!-- end-fork-add fork-notice -->
 
 # Maden
 

@@ -230,12 +230,28 @@ const DragHandleButton = React.memo(
     const element = useElement();
 
     return (
-      <Tooltip>
+      <Tooltip
+        // fork-add drag-handle-no-hover
+
+        open={false}
+
+        // end-fork-add drag-handle-no-hover
+      >
         <TooltipTrigger asChild>
           <Button
             ref={ref}
             variant="ghost"
-            className="-left-0 absolute h-6 w-full p-0"
+            // fork-mutate drag-handle-no-hover
+
+            // - Old
+
+            // className="-left-0 absolute h-6 w-full p-0"
+
+            // - New
+
+            className="-left-0 absolute h-6 w-full p-0 hover:bg-transparent dark:hover:bg-transparent"
+
+            // end-fork-mutate drag-handle-no-hover
             style={{ top: `${dragButtonTop + 3}px` }}
             data-plate-prevent-deselect
             onClick={(e) => {

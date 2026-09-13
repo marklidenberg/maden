@@ -6,6 +6,12 @@ import { KEYS } from 'platejs';
 import { IndentKit } from '@/components/editor/plugins/indent-kit';
 import { BlockList } from '@/components/ui/block-list';
 
+// fork-add todo-states
+
+import { TodoStatePlugin } from '@/lib/todo-states';
+
+// end-fork-add todo-states
+
 export const ListKit = [
   ...IndentKit,
   ListPlugin.configure({
@@ -23,4 +29,10 @@ export const ListKit = [
       belowNodes: BlockList,
     },
   }),
+
+  // fork-add todo-states
+
+  TodoStatePlugin,
+
+  // end-fork-add todo-states
 ];

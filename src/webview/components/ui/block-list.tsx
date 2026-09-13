@@ -18,6 +18,12 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
+// fork-add todo-states
+
+import { TodoStateLi, TodoStateMarker } from '@/components/ui/todo-state';
+
+// end-fork-add todo-states
+
 const config: Record<
   string,
   {
@@ -25,10 +31,23 @@ const config: Record<
     Marker: React.FC<PlateElementProps>;
   }
 > = {
+  // fork-delete todo-states
+
+  // todo: {
+  //   Li: TodoLi,
+  //   Marker: TodoMarker,
+  // },
+
+  // end-fork-delete todo-states
+
+  // fork-add todo-states
+
   todo: {
-    Li: TodoLi,
-    Marker: TodoMarker,
+    Li: TodoStateLi,
+    Marker: TodoStateMarker,
   },
+
+  // end-fork-add todo-states
 };
 
 export const BlockList: RenderNodeWrapper = (props) => {

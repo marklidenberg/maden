@@ -24,6 +24,12 @@ import {
 } from '@/lib/markdown-parse-debug';
 import { coerceSlateTextLeaf } from '@/lib/slate-node-normalize';
 
+// fork-add todo-states
+
+import { writeTodoStatesAsText } from '@/lib/todo-states';
+
+// end-fork-add todo-states
+
 export const EMPTY_VALUE: Value = [
   {
     children: [{ text: '' }],
@@ -454,7 +460,17 @@ export const serializePlateValueToMarkdown = (
     normalizeLineEndings(
       serializeDetailsSections(value, (currentValue) =>
         serializeMd(editor as never, {
-          value: currentValue,
+          // fork-delete todo-states
+
+          // value: currentValue,
+
+          // end-fork-delete todo-states
+
+          // fork-add todo-states
+
+          value: writeTodoStatesAsText(currentValue),
+
+          // end-fork-add todo-states
         })
       )
     )

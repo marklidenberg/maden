@@ -27,6 +27,11 @@ import { createDocumentSession, createStateMessage } from './services/document-s
 import { openLink } from './services/link-open';
 
 // end-fork-add link-open
+// fork-add external-reload
+
+import { markExternal, readExternalText } from './services/external-reload';
+
+// end-fork-add external-reload
 import { getWebviewHtml } from './services/webview-html';
 
 type MarkdownCustomDocument = vscode.CustomDocument & {
@@ -53,6 +58,11 @@ export class MadenMarkdownEditorProvider
       writeTimer?: NodeJS.Timeout;
     }
   >();
+  // fork-add external-reload
+
+  private readonly hostWritesByDocument = new Map<string, number>();
+
+  // end-fork-add external-reload
 
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     const provider = new MadenMarkdownEditorProvider(context);
@@ -287,7 +297,16 @@ export class MadenMarkdownEditorProvider
           postOrQueue(buildStateMessage('externalDocumentUpdated'));
         }
 
-        broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
+        // fork-delete external-reload
+
+        // broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
+
+        // end-fork-delete external-reload
+        // fork-add external-reload
+
+        broadcastToOtherPanels(markExternal(buildStateMessage('externalDocumentUpdated')));
+
+        // end-fork-add external-reload
       };
 
       const scheduleWrite = () => {
@@ -309,16 +328,55 @@ export class MadenMarkdownEditorProvider
         )
       );
 
-      const reloadFromDisk = async () => {
-        const content = await this.readFileSafe(document.uri);
-        const normalized = enforceTitleHeading(content, currentFilePath());
-        if (normalized === this.documentText.get(key)) {
-          return;
-        }
+      // fork-delete external-reload
 
-        this.documentText.set(key, normalized);
-        postOrQueue(buildStateMessage('externalDocumentUpdated'));
+      // const reloadFromDisk = async () => {
+      //   const content = await this.readFileSafe(document.uri);
+      //   const normalized = enforceTitleHeading(content, currentFilePath());
+      //   if (normalized === this.documentText.get(key)) {
+      //     return;
+      //   }
+      //
+      //   this.documentText.set(key, normalized);
+      //   postOrQueue(buildStateMessage('externalDocumentUpdated'));
+      // };
+
+      // end-fork-delete external-reload
+      // fork-add external-reload
+
+      const takeExternal = (text: string, source: string) => {
+        this.documentText.set(key, text);
+
+        // - Outside wins over the webview's pending write
+
+        runtime.pendingMarkdownFromWebview = undefined;
+        clearTimer();
+
+        // - Every panel of the document told
+
+        log(`External change taken (${source}). len=${text.length}`);
+        postToDocumentPanels(
+          this.panelsByDocument,
+          key,
+          markExternal(buildStateMessage('externalDocumentUpdated'))
+        );
       };
+
+      const reloadFromDisk = async () => {
+        const text = await readExternalText({
+          held: () => this.documentText.get(key),
+          read: async () =>
+            enforceTitleHeading(await this.readFileSafe(document.uri), currentFilePath()),
+          writes: () => this.hostWritesByDocument.get(key) ?? 0,
+          writing: () => runtime.applyingHostWrite > 0,
+        });
+
+        if (text !== undefined) {
+          takeExternal(text, 'disk');
+        }
+      };
+
+      // end-fork-add external-reload
 
       const subscriptions: vscode.Disposable[] = [];
       let linkedTextDocument: vscode.TextDocument | undefined;
@@ -574,16 +632,37 @@ export class MadenMarkdownEditorProvider
             return;
           }
 
-          const normalized = enforceTitleHeading(event.document.getText(), currentFilePath());
-          const previous = this.documentText.get(key);
-          if (previous === normalized) {
+          // fork-delete external-reload
+
+          // const normalized = enforceTitleHeading(event.document.getText(), currentFilePath());
+          // const previous = this.documentText.get(key);
+          // if (previous === normalized) {
+          //   return;
+          // }
+          //
+          // this.documentText.set(key, normalized);
+          // log(`External text document update detected. len=${normalized.length}`);
+          // postOrQueue(buildStateMessage('externalDocumentUpdated'));
+          // broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
+
+          // end-fork-delete external-reload
+          // fork-add external-reload
+
+          // - Saved — the file tells, not the text document's copy of it
+
+          if (!event.document.isDirty) {
+            void reloadFromDisk();
             return;
           }
 
-          this.documentText.set(key, normalized);
-          log(`External text document update detected. len=${normalized.length}`);
-          postOrQueue(buildStateMessage('externalDocumentUpdated'));
-          broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
+          // - Unsaved text of a text editor — taken as is
+
+          const normalized = enforceTitleHeading(event.document.getText(), currentFilePath());
+          if (normalized !== this.documentText.get(key)) {
+            takeExternal(normalized, 'text document');
+          }
+
+          // end-fork-add external-reload
         })
       );
 
@@ -726,6 +805,13 @@ export class MadenMarkdownEditorProvider
   }
 
   private async writeDocumentToDisk(uri: vscode.Uri, text: string): Promise<void> {
+    // fork-add external-reload
+
+    const writesKey = uri.toString();
+    this.hostWritesByDocument.set(writesKey, (this.hostWritesByDocument.get(writesKey) ?? 0) + 1);
+
+    // end-fork-add external-reload
+
     const current = await this.readFileSafe(uri);
     const normalizedCurrent = current.replace(/\r\n/g, '\n');
     const normalizedNext = text.replace(/\r\n/g, '\n');

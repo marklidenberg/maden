@@ -33,6 +33,11 @@ import {
   serializePlateValueToMarkdown,
 } from '@/lib/markdown-plate-conversion';
 import { postToHost } from '@/vscode';
+// fork-add external-reload
+
+import { keepSelection } from '@/lib/keep-selection';
+
+// end-fork-add external-reload
 
 const TOPBAR_STORAGE_KEY = 'maden.ui.topbarVisible';
 const FONT_MODE_STORAGE_KEY = 'maden.ui.fontMode';
@@ -60,6 +65,11 @@ function MarkdownEditor({
 }: {
   documentState: {
     aiEnabled: boolean;
+    // fork-add external-reload
+
+    external?: boolean;
+
+    // end-fork-add external-reload
     fileName: string;
     filePath: string;
     markdown: string;
@@ -115,10 +125,22 @@ function MarkdownEditor({
       isEditorFocused = !!fallbackEditor && fallbackEditor.contains(document.activeElement);
     }
 
-    // Ignore stale/echoed remote updates while the user is actively typing.
-    if (isEditorFocused && lastSyncedMarkdownRef.current.length > 0) {
+    // fork-delete external-reload
+
+    // // Ignore stale/echoed remote updates while the user is actively typing.
+    // if (isEditorFocused && lastSyncedMarkdownRef.current.length > 0) {
+    //   return;
+    // }
+
+    // end-fork-delete external-reload
+    // fork-add external-reload
+
+    // An echo of this editor's own typing waits; a change from outside does not
+    if (!documentState.external && isEditorFocused && lastSyncedMarkdownRef.current.length > 0) {
       return;
     }
+
+    // end-fork-add external-reload
 
     const nextValue = deserializeMarkdownToPlateValue(incomingMarkdown, {
       context: {
@@ -132,9 +154,20 @@ function MarkdownEditor({
         }),
     }).value;
 
+    // fork-add external-reload
+
+    const selection = editor.selection;
+
+    // end-fork-add external-reload
+
     isApplyingRemoteChangeRef.current = true;
     editor.tf.withoutSaving(() => {
       editor.tf.setValue(nextValue);
+      // fork-add external-reload
+
+      keepSelection(editor, selection);
+
+      // end-fork-add external-reload
     });
 
     try {

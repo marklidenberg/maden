@@ -55,6 +55,11 @@ export type HostToWebviewMessage =
     workspacePaths: string[];
     readOnly: boolean;
     aiEnabled: boolean;
+    // fork-add external-reload
+
+    external?: boolean;
+
+    // end-fork-add external-reload
   }
   | {
     type: 'setReadonly';

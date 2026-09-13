@@ -7,6 +7,11 @@ import { postToHost } from '@/vscode';
 
 export type DocumentState = {
   aiEnabled: boolean;
+  // fork-add external-reload
+
+  external?: boolean;
+
+  // end-fork-add external-reload
   fileName: string;
   filePath: string;
   markdown: string;
@@ -91,6 +96,11 @@ export const useWebviewDocumentState = () => {
           return {
             ...current,
             aiEnabled: message.aiEnabled,
+            // fork-add external-reload
+
+            external: message.external,
+
+            // end-fork-add external-reload
             fileName: message.fileName,
             filePath: message.filePath,
             readOnly: message.readOnly,
@@ -101,6 +111,11 @@ export const useWebviewDocumentState = () => {
         return {
           ...current,
           markdown: incoming,
+          // fork-add external-reload
+
+          external: message.external,
+
+          // end-fork-add external-reload
           aiEnabled: message.aiEnabled,
           fileName: message.fileName,
           filePath: message.filePath,

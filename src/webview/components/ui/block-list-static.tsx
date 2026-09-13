@@ -8,6 +8,12 @@ import { CheckIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
+// fork-add todo-states
+
+import { TodoStateBox, TodoStateLi } from '@/components/ui/todo-state';
+
+// end-fork-add todo-states
+
 const config: Record<
   string,
   {
@@ -15,10 +21,23 @@ const config: Record<
     Marker: React.FC<SlateRenderElementProps>;
   }
 > = {
+  // fork-delete todo-states
+
+  // todo: {
+  //   Li: TodoLiStatic,
+  //   Marker: TodoMarkerStatic,
+  // },
+
+  // end-fork-delete todo-states
+
+  // fork-add todo-states
+
   todo: {
-    Li: TodoLiStatic,
-    Marker: TodoMarkerStatic,
+    Li: TodoStateLi,
+    Marker: TodoStateBox,
   },
+
+  // end-fork-add todo-states
 };
 
 export const BlockListStatic: RenderStaticNodeWrapper = (props) => {

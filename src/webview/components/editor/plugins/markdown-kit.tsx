@@ -32,11 +32,11 @@ import { markdownStringifyOptions } from '@/lib/markdown-serialize-options';
 
 // end-fork-add markdown-no-escape
 
-// fork-add task-list-as-text
+// fork-add todo-states
 
-import { remarkTaskListAsText } from '@/lib/markdown-task-list-as-text';
+import { remarkTodoStates, todoStateMarkdownRules } from '@/lib/todo-states';
 
-// end-fork-add task-list-as-text
+// end-fork-add todo-states
 
 const diagramLangToDrawingType = (lang: unknown): CodeDrawingType | null => {
   if (typeof lang !== 'string') return null;
@@ -265,11 +265,11 @@ export const MarkdownKit = [
         remarkMath,
         remarkGfm,
 
-        // fork-add task-list-as-text
+        // fork-add todo-states
 
-        remarkTaskListAsText,
+        remarkTodoStates,
 
-        // end-fork-add task-list-as-text
+        // end-fork-add todo-states
 
         remarkMdx,
       ],
@@ -282,7 +282,17 @@ export const MarkdownKit = [
 
       // end-fork-add markdown-no-escape
 
-      rules: codeDrawingMarkdownRules,
+      // fork-delete todo-states
+
+      // rules: codeDrawingMarkdownRules,
+
+      // end-fork-delete todo-states
+
+      // fork-add todo-states
+
+      rules: { ...codeDrawingMarkdownRules, ...todoStateMarkdownRules },
+
+      // end-fork-add todo-states
     },
   }),
 ];

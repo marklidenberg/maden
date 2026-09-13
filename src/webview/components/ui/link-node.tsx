@@ -42,13 +42,12 @@ export function LinkElement(props: PlateElementProps<TLinkElement>) {
 
         // fork-add link-open
 
+        onMouseDown: (e) => {
+          // A press leaves the caret where it is.
+
+          e.preventDefault();
+        },
         onClick: (e) => {
-          // A press opens it; a selection dragged across it does not.
-
-          const selection = document.getSelection();
-
-          if (selection && !selection.isCollapsed) return;
-
           e.preventDefault();
           openLink(props.element.url);
         },

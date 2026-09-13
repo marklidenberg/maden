@@ -1,7 +1,10 @@
 # link-open
 
-Pressing a link opens it — a url in the browser, a file in vscode. Upstream only drops the caret in:
-`contenteditable` follows no anchor, and plate strips a relative `href`.
+Pressing a link opens it — a url in the browser, a file in vscode — and leaves the caret where it is.
+Upstream only drops the caret in: `contenteditable` follows no anchor, and plate strips a relative
+`href`.
+
+The caret stays because `mousedown` is cancelled; a drag started on a link selects nothing.
 
 `http`, `https`, `mailto`, `tel`, `vscode`, `vscode-insiders` open externally — vscode hands its own
 scheme to the extension's uri handler; a path opens as a file; anything else — nothing.

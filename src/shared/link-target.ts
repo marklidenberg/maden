@@ -5,7 +5,7 @@ export type LinkTarget =
   | { kind: 'file'; path: string }
   | { kind: 'none' };
 
-const EXTERNAL_SCHEMES = new Set(['http', 'https', 'mailto', 'tel']);
+const EXTERNAL_SCHEMES = new Set(['http', 'https', 'mailto', 'tel', 'vscode', 'vscode-insiders']);
 
 const SCHEME_PATTERN = /^([a-zA-Z][a-zA-Z\d+.-]*):/;
 

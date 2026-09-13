@@ -17,6 +17,10 @@ describe('resolveLinkTarget', () => {
       url: 'mailto:a@b.co',
     });
     expect(resolveLinkTarget('tel:+123', doc)).toEqual({ kind: 'external', url: 'tel:+123' });
+    expect(resolveLinkTarget('vscode://marklidenberg.wise/agent/open?id=1-sum', doc)).toEqual({
+      kind: 'external',
+      url: 'vscode://marklidenberg.wise/agent/open?id=1-sum',
+    });
   });
 
   it('refuses any other scheme, an anchor and an empty url', () => {

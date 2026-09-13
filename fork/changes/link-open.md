@@ -3,7 +3,8 @@
 Pressing a link opens it — a url in the browser, a file in vscode. Upstream only drops the caret in:
 `contenteditable` follows no anchor, and plate strips a relative `href`.
 
-`http`, `https`, `mailto`, `tel` open externally; a path opens as a file; anything else — nothing.
+`http`, `https`, `mailto`, `tel`, `vscode`, `vscode-insiders` open externally — vscode hands its own
+scheme to the extension's uri handler; a path opens as a file; anything else — nothing.
 
 Files:
 

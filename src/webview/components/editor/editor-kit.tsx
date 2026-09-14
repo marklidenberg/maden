@@ -39,6 +39,12 @@ import { TableKit } from '@/components/editor/plugins/table-kit';
 import { TocKit } from '@/components/editor/plugins/toc-kit';
 import { ToggleKit } from '@/components/editor/plugins/toggle-kit';
 
+// fork-add fold-chevrons
+
+import { FoldKit } from '@/components/editor/plugins/fold-kit';
+
+// end-fork-add fold-chevrons
+
 export const EditorKit = [
   ...AIKit,
 
@@ -78,6 +84,14 @@ export const EditorKit = [
   ...CursorOverlayKit,
   ...BlockMenuKit,
   ...DndKit,
+
+  // fork-add fold-chevrons
+
+  // After `DndKit` — a later wrapper is the outer one, so a hidden block hides its drag row too.
+  ...FoldKit,
+
+  // end-fork-add fold-chevrons
+
   ...EmojiKit,
   ...ExitBreakKit,
   TrailingBlockPlugin,

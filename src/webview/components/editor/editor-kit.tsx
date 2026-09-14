@@ -39,6 +39,12 @@ import { TableKit } from '@/components/editor/plugins/table-kit';
 import { TocKit } from '@/components/editor/plugins/toc-kit';
 import { ToggleKit } from '@/components/editor/plugins/toggle-kit';
 
+// fork-add node-zoom
+
+import { NodeZoomKit } from '@/components/editor/plugins/node-zoom-kit';
+
+// end-fork-add node-zoom
+
 export const EditorKit = [
   ...AIKit,
 
@@ -78,6 +84,11 @@ export const EditorKit = [
   ...CursorOverlayKit,
   ...BlockMenuKit,
   ...DndKit,
+  // fork-add node-zoom
+
+  ...NodeZoomKit,
+
+  // end-fork-add node-zoom
   ...EmojiKit,
   ...ExitBreakKit,
   TrailingBlockPlugin,

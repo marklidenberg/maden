@@ -12,7 +12,13 @@ import { BasicMarkToolbarButtons } from './basic-mark-toolbar-buttons';
 import { CommentToolbarButton } from './comment-toolbar-button';
 import { InlineEquationToolbarButton } from './equation-toolbar-button';
 import { LinkToolbarButton } from './link-toolbar-button';
-import { MoreToolbarButton } from './more-toolbar-button';
+
+// fork-delete hide-mark-menu
+
+// import { MoreToolbarButton } from './more-toolbar-button';
+
+// end-fork-delete hide-mark-menu
+
 import { SuggestionToolbarButton } from './suggestion-toolbar-button';
 import { ToolbarGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
@@ -50,7 +56,11 @@ export function FloatingToolbarButtons() {
         <CommentToolbarButton />
         <SuggestionToolbarButton />
 
-        {!readOnly && <MoreToolbarButton />}
+        {/* fork-delete hide-mark-menu */}
+
+        {/* {!readOnly && <MoreToolbarButton />} */}
+
+        {/* end-fork-delete hide-mark-menu */}
       </ToolbarGroup>
     </>
   );

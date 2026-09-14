@@ -7,7 +7,13 @@ import { useEditorReadOnly } from 'platejs/react';
 
 import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button';
 import { MediaToolbarButton } from './media-toolbar-button';
-import { MoreToolbarButton } from './more-toolbar-button';
+
+// fork-delete hide-mark-menu
+
+// import { MoreToolbarButton } from './more-toolbar-button';
+
+// end-fork-delete hide-mark-menu
+
 import { TableToolbarButton } from './table-toolbar-button';
 import { ToolbarGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
@@ -34,9 +40,13 @@ export function FixedToolbarButtons() {
             <MediaToolbarButton nodeType={KEYS.file} />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/* fork-delete hide-mark-menu */}
+
+          {/* <ToolbarGroup>
             <MoreToolbarButton />
-          </ToolbarGroup>
+          </ToolbarGroup> */}
+
+          {/* end-fork-delete hide-mark-menu */}
         </>
       )}
     </div>

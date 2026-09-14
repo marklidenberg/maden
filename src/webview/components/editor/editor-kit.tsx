@@ -45,6 +45,12 @@ import { FoldKit } from '@/components/editor/plugins/fold-kit';
 
 // end-fork-add fold-chevrons
 
+// fork-add node-zoom
+
+import { NodeZoomKit } from '@/components/editor/plugins/node-zoom-kit';
+
+// end-fork-add node-zoom
+
 export const EditorKit = [
   ...AIKit,
 
@@ -91,6 +97,12 @@ export const EditorKit = [
   ...FoldKit,
 
   // end-fork-add fold-chevrons
+
+  // fork-add node-zoom
+
+  ...NodeZoomKit,
+
+  // end-fork-add node-zoom
 
   ...EmojiKit,
   ...ExitBreakKit,

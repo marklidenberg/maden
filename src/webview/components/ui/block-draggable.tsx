@@ -26,6 +26,12 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
+// fork-add node-zoom
+
+import { NodeZoomButton } from '@/components/ui/node-zoom';
+
+// end-fork-add node-zoom
+
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
 
 export const BlockDraggable: RenderNodeWrapper = (props) => {
@@ -139,6 +145,13 @@ function Draggable(props: PlateElementProps) {
               isInColumn && 'h-4'
             )}
           >
+            {/* fork-add node-zoom */}
+
+            {path.length === 1 && (
+              <NodeZoomButton element={element} top={dragButtonTop} />
+            )}
+
+            {/* end-fork-add node-zoom */}
             <div
               className={cn(
                 'slate-blockToolbar relative w-[18px]',

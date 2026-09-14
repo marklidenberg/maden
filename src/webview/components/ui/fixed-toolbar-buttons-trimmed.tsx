@@ -17,6 +17,11 @@ import { MediaToolbarButton } from './media-toolbar-button';
 import { TableToolbarButton } from './table-toolbar-button';
 import { ToolbarGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
+// fork-add text-zoom
+
+import { TextZoomToolbarButtons } from './text-zoom-toolbar-buttons';
+
+// end-fork-add text-zoom
 
 export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
@@ -49,6 +54,16 @@ export function FixedToolbarButtons() {
           {/* end-fork-delete hide-mark-menu */}
         </>
       )}
+
+      {/* fork-add text-zoom */}
+
+      <div className="grow" />
+
+      <ToolbarGroup>
+        <TextZoomToolbarButtons />
+      </ToolbarGroup>
+
+      {/* end-fork-add text-zoom */}
     </div>
   );
 }

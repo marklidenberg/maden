@@ -971,6 +971,14 @@
       'Courier New', monospace !important;
   }
 
+  /* fork-add text-zoom */
+
+  .page-content > * {
+    zoom: var(--maden-text-zoom, 1);
+  }
+
+  /* end-fork-add text-zoom */
+
   .maden-fixed-toolbar {
     position: fixed;
     top: 0;

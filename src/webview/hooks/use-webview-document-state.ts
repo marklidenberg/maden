@@ -10,6 +10,7 @@ export type DocumentState = {
   // fork-add external-reload
 
   external?: boolean;
+  revision?: number;
 
   // end-fork-add external-reload
   fileName: string;
@@ -69,6 +70,11 @@ export const useWebviewDocumentState = () => {
           filePath: message.filePath,
           markdown: normalizeLineEndings(message.markdown),
           readOnly: message.readOnly,
+          // fork-add external-reload
+
+          revision: message.revision,
+
+          // end-fork-add external-reload
           workspacePaths: message.workspacePaths,
         });
         return;
@@ -88,6 +94,11 @@ export const useWebviewDocumentState = () => {
             filePath: message.filePath,
             markdown: incoming,
             readOnly: message.readOnly,
+            // fork-add external-reload
+
+            revision: message.revision,
+
+            // end-fork-add external-reload
             workspacePaths: message.workspacePaths,
           };
         }
@@ -99,6 +110,7 @@ export const useWebviewDocumentState = () => {
             // fork-add external-reload
 
             external: message.external,
+            revision: message.revision,
 
             // end-fork-add external-reload
             fileName: message.fileName,
@@ -114,6 +126,7 @@ export const useWebviewDocumentState = () => {
           // fork-add external-reload
 
           external: message.external,
+          revision: message.revision,
 
           // end-fork-add external-reload
           aiEnabled: message.aiEnabled,

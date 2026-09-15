@@ -73,6 +73,7 @@ function MarkdownEditor({
     // fork-add external-reload
 
     external?: boolean;
+    revision?: number;
 
     // end-fork-add external-reload
     fileName: string;
@@ -97,8 +98,22 @@ function MarkdownEditor({
 
   const isApplyingRemoteChangeRef = React.useRef(false);
   const lastSyncedMarkdownRef = React.useRef('');
+  // fork-add external-reload
+
+  // The host's revision of the text the editor holds — a write built on an older one is dropped
+  const revisionRef = React.useRef<number | undefined>(undefined);
+
+  // end-fork-add external-reload
 
   React.useEffect(() => {
+    // fork-add external-reload
+
+    // - A text from outside the editor has not taken yet
+
+    const behind = documentState.revision !== revisionRef.current;
+    revisionRef.current = documentState.revision;
+
+    // end-fork-add external-reload
     const incomingMarkdown = normalizeLineEndings(documentState.markdown);
     const canonicalIncomingMarkdown = canonicalizeMarkdown(incomingMarkdown);
     const canonicalLastSyncedMarkdown = canonicalizeMarkdown(lastSyncedMarkdownRef.current);
@@ -141,7 +156,12 @@ function MarkdownEditor({
     // fork-add external-reload
 
     // An echo of this editor's own typing waits; a change from outside does not
-    if (!documentState.external && isEditorFocused && lastSyncedMarkdownRef.current.length > 0) {
+    if (
+      !documentState.external &&
+      !behind &&
+      isEditorFocused &&
+      lastSyncedMarkdownRef.current.length > 0
+    ) {
       return;
     }
 
@@ -189,7 +209,22 @@ function MarkdownEditor({
     queueMicrotask(() => {
       isApplyingRemoteChangeRef.current = false;
     });
-  }, [documentState.fileName, documentState.filePath, documentState.markdown, editor]);
+    // fork-delete external-reload
+
+    // }, [documentState.fileName, documentState.filePath, documentState.markdown, editor]);
+
+    // end-fork-delete external-reload
+    // fork-add external-reload
+
+    // - A text from outside equal to the one held — the revision alone moves
+  }, [
+    documentState.fileName,
+    documentState.filePath,
+    documentState.markdown,
+    documentState.revision,
+    editor,
+  ]);
+  // end-fork-add external-reload
 
   const onValueChange = React.useCallback(
     ({ editor, value }: { editor: { children: Value }; value: Value }) => {
@@ -210,10 +245,23 @@ function MarkdownEditor({
       }
 
       lastSyncedMarkdownRef.current = markdown;
+      // fork-delete external-reload
+
+      // postToHost({
+      //   type: 'documentChanged',
+      //   markdown,
+      // });
+
+      // end-fork-delete external-reload
+      // fork-add external-reload
+
       postToHost({
         type: 'documentChanged',
         markdown,
+        revision: revisionRef.current,
       });
+
+      // end-fork-add external-reload
     },
     []
   );

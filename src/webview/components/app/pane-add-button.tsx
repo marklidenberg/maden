@@ -15,7 +15,7 @@ export function PaneAddButton() {
       className="pointer-events-auto h-8 w-8 bg-background/95 backdrop-blur-sm"
       aria-label="Split pane"
       title="Split pane"
-      onClick={splitPane}
+      onClick={() => splitPane()}
       onMouseDown={(e) => e.preventDefault()}
     >
       <PlusIcon className="h-4 w-4" />

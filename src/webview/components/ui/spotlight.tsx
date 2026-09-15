@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 
 // fork-add panes
 
-import { isPaneFocused } from '@/lib/panes';
+import { isPaneFocused, opensPane, splitPane } from '@/lib/panes';
 
 // end-fork-add panes
 
@@ -74,6 +74,12 @@ export function Spotlight() {
   const openRef = React.useRef(false);
   const picked = React.useRef(false);
   const zoomed = React.useRef(stack);
+  // fork-add panes
+
+  // A pick for a new pane — opened once the dialog lets the focus go
+  const toPane = React.useRef<string | null>(null);
+
+  // end-fork-add panes
 
   openRef.current = open;
 
@@ -150,6 +156,16 @@ export function Spotlight() {
   }, [active, items]);
 
   const pick = (id: string) => {
+    // fork-add panes
+
+    if (opensPane(editor, id)) {
+      toPane.current = id;
+      setOpen(false);
+
+      return;
+    }
+
+    // end-fork-add panes
     picked.current = spotlightJump(editor, id);
     setOpen(false);
   };
@@ -164,6 +180,17 @@ export function Spotlight() {
           className="maden-spotlight fixed top-[12vh] left-1/2 z-[100] flex max-h-[70vh] w-[min(36rem,calc(100vw-2rem))] -translate-x-1/2 flex-col overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-lg"
           onCloseAutoFocus={(event) => {
             event.preventDefault();
+            // fork-add panes
+
+            // The pinned pane left as it was; the new one takes the caret
+            if (toPane.current) {
+              splitPane(toPane.current);
+              toPane.current = null;
+
+              return;
+            }
+
+            // end-fork-add panes
             editor.tf.focus();
 
             if (picked.current) {

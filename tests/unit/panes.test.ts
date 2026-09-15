@@ -14,15 +14,18 @@ import {
   forwardChange,
   initialPanes,
   movePane,
+  opensPane,
   PanePlugin,
+  pinPane,
   registerPane,
 } from '../../src/webview/lib/panes';
+import { SpotlightPlugin } from '../../src/webview/lib/spotlight';
 
 const SOURCE = ['# Title', '', '- one', '  - two', '- three'].join('\n');
 
 const createEditor = () =>
   createPlateEditor({
-    plugins: [PanePlugin, NodeZoomPlugin, FoldPlugin],
+    plugins: [PanePlugin, NodeZoomPlugin, FoldPlugin, SpotlightPlugin],
     value: deserializeMarkdownToPlateValue(SOURCE).value,
   });
 
@@ -30,7 +33,7 @@ type Editor = ReturnType<typeof createEditor>;
 
 const texts = (editor: Editor) => editor.children.map((node) => NodeApi.string(node));
 
-const ids = (editor: Editor) => editor.children.map((node) => node.id);
+const ids = (editor: Editor) => editor.children.map((node) => node.id as string);
 
 // Slate's flush — the operations sent, then cleared
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
@@ -38,8 +41,8 @@ const flush = () => new Promise<void>((resolve) => setTimeout(resolve));
 // The panes registered, each test's own
 const registered: (() => void)[] = [];
 
-const register = (id: string, editor: Editor, from?: string) =>
-  registered.push(registerPane(id, editor, from));
+const register = (id: string, editor: Editor, from?: string, jump?: string) =>
+  registered.push(registerPane(id, editor, from, jump));
 
 afterEach(() => registered.splice(0).forEach((off) => off()));
 
@@ -177,6 +180,52 @@ describe('one document across the panes', () => {
     const editor = createEditor();
 
     expect(editor.getOption(PanePlugin, 'focused')).toBe(true);
+  });
+});
+
+describe('a pinned pane', () => {
+  it('pins a pane, the focused where none named; a move and a close keep it', () => {
+    const two = addPane(initialPanes());
+    const [first, second] = two.panes.map((pane) => pane.id);
+    const pinned = (state: typeof two) =>
+      state.panes.filter((pane) => pane.pinned).map((pane) => pane.id);
+
+    expect(pinned(pinPane(two))).toEqual([second]);
+    expect(pinned(pinPane(pinPane(two, first), first))).toEqual([]);
+    expect(pinned(movePane(pinPane(two, first), first, 2))).toEqual([first]);
+    expect(pinned(closePane(pinPane(two, first), second))).toEqual([first]);
+  });
+
+  it('opens a pick in a new pane, but its own root', () => {
+    const editor = createEditor();
+    const [, one, , three] = ids(editor);
+
+    expect(opensPane(editor, one)).toBe(false);
+
+    editor.setOption(PanePlugin, 'pinned', true);
+
+    expect(opensPane(editor, one)).toBe(true);
+
+    zoomIn(editor, one);
+
+    expect(opensPane(editor, one)).toBe(false);
+    expect(opensPane(editor, three)).toBe(true);
+  });
+
+  it('adds a pane zoomed in on its jump, over the view split', () => {
+    const a = createEditor();
+    const b = createEditor();
+    const [, one, , three] = ids(a);
+
+    expect(addPane(initialPanes(), three).panes[1].jump).toBe(three);
+
+    zoomIn(a, one);
+    register('a', a);
+    register('b', b, 'a', three);
+
+    expect(b.getOption(NodeZoomPlugin, 'stack').map((zoom) => zoom.root)).toEqual([one, three]);
+    expect(b.selection?.focus).toEqual({ offset: 5, path: [3, 0] });
+    expect(getZoom(a.getOption(NodeZoomPlugin, 'stack'))?.root).toBe(one);
   });
 });
 

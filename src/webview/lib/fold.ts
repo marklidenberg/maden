@@ -44,10 +44,9 @@ export const lastChildIndex = (nodes: TElement[], index: number): number => {
   return last;
 };
 
-// The caret inside folded children — its items unfold.
-export const unfoldAtCaret = (editor: SlateEditor) => {
+// A top-level block inside folded children — its items unfold.
+export const unfoldAt = (editor: SlateEditor, index: number | undefined) => {
   const folded = editor.getOption(FoldPlugin, 'foldedIds');
-  const index = editor.selection?.focus.path[0];
   const node = index === undefined ? undefined : editor.children[index];
 
   if (folded.size === 0 || !node) return;
@@ -62,6 +61,10 @@ export const unfoldAtCaret = (editor: SlateEditor) => {
     new Set([...folded].filter((id) => !ids.includes(id)))
   );
 };
+
+// The caret inside folded children — its items unfold.
+export const unfoldAtCaret = (editor: SlateEditor) =>
+  unfoldAt(editor, editor.selection?.focus.path[0]);
 
 // Folded ids live in the options, as upstream's toggle keeps `openIds` — the file untouched.
 export const FoldPlugin = createPlatePlugin({

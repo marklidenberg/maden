@@ -6,6 +6,8 @@ import type { PlateEditor } from 'platejs/react';
 import { NodeApi, PathApi, PointApi, RangeApi } from 'platejs';
 import { createPlatePlugin } from 'platejs/react';
 
+import { FoldPlugin, unfoldAt } from '@/lib/fold';
+
 export type FindQuery = {
   matchCase: boolean;
   regex: boolean;
@@ -168,6 +170,15 @@ const currentMatch = (editor: PlateEditor) => {
   return matches[currentIndex(editor.getOption(FindReplacePlugin, 'current'), matches.length)];
 };
 
+// The current match inside folded children — they unfold, as VS Code's.
+const unfoldCurrent = (editor: PlateEditor) => {
+  const match = currentMatch(editor);
+
+  if (match && editor.getOption(FindReplacePlugin, 'open') && editor.plugins[FoldPlugin.key]) {
+    unfoldAt(editor, match.anchor.path[0]);
+  }
+};
+
 // `$&` `$0` the match, `$1`… a group, `$<name>` a named one, `$$` a dollar.
 export const expandReplacement = (replace: string, exec: RegExpExecArray) =>
   replace.replace(/\$(\$|&|\d{1,2}|<([^>]*)>)/g, (token, key: string, name?: string) => {
@@ -299,6 +310,7 @@ export const setFindQuery = (editor: PlateEditor, patch: Partial<FindOptions>) =
     'current',
     indexFrom(getFindMatches(editor).matches, editor.getOption(FindReplacePlugin, 'origin'))
   );
+  unfoldCurrent(editor);
   editor.api.redecorate();
 };
 
@@ -350,6 +362,7 @@ export const findStep = (editor: PlateEditor, step: 1 | -1) => {
     matches.length;
 
   editor.setOptions(FindReplacePlugin, { current, origin: matches[current].anchor });
+  unfoldCurrent(editor);
   editor.api.redecorate();
 };
 

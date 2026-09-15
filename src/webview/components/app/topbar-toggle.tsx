@@ -1,6 +1,6 @@
 // fork-add topbar-toggle
 
-import { PanelRightCloseIcon, PanelRightOpenIcon } from 'lucide-react';
+import { PanelTopCloseIcon, PanelTopOpenIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
@@ -22,7 +22,7 @@ export function TopbarToggle({
       onClick={() => onToggle(!visible)}
       onMouseDown={(e) => e.preventDefault()}
     >
-      {visible ? <PanelRightCloseIcon className="h-4 w-4" /> : <PanelRightOpenIcon className="h-4 w-4" />}
+      {visible ? <PanelTopCloseIcon className="h-4 w-4" /> : <PanelTopOpenIcon className="h-4 w-4" />}
     </Button>
   );
 }

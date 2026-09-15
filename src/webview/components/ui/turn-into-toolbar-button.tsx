@@ -163,7 +163,7 @@ export function TurnIntoToolbarButton(
   return (
     <Popover open={open} onOpenChange={setOpen} modal={false} {...props}>
       <PopoverTrigger asChild>
-        {/* fork-mutate toolbar-right */}
+        {/* fork-mutate toolbar-top */}
 
         {/* - Old */}
 
@@ -178,17 +178,12 @@ export function TurnIntoToolbarButton(
 
         {/* - New */}
 
-        {/* The block type's icon — a label is too wide for the rail */}
-        <ToolbarButton
-          pressed={open}
-          tooltip={open ? undefined : `Turn into · ${selectedItem.label}`}
-          tooltipContentProps={{ side: 'left' }}
-          isDropdown
-        >
+        {/* The block type's icon — a label is too wide for the bar */}
+        <ToolbarButton pressed={open} tooltip={open ? undefined : `Turn into · ${selectedItem.label}`} isDropdown>
           {selectedItem.icon}
         </ToolbarButton>
 
-        {/* end-fork-mutate toolbar-right */}
+        {/* end-fork-mutate toolbar-top */}
       </PopoverTrigger>
 
       <PopoverPrimitive.Portal>
@@ -199,11 +194,6 @@ export function TurnIntoToolbarButton(
           e.preventDefault();
           editor.tf.focus();
         }}
-        // fork-add toolbar-right
-
-        side="left"
-
-        // end-fork-add toolbar-right
         align="start"
       >
         <div

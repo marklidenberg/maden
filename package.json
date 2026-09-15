@@ -57,6 +57,7 @@
       {
         "command": "maden.spotlight",
         "key": "ctrl+p",
+        "mac": "cmd+p",
         "when": "activeCustomEditorId == 'maden.plateMarkdownEditor' && !sideBarFocus && !panelFocus && !inQuickOpen"
       }
     ],

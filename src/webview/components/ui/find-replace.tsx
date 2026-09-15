@@ -196,7 +196,7 @@ export function FindReplaceWidget() {
   // On the body — outside the editor container, whose block selection takes a drag
   return createPortal(
     <div
-      className="maden-find-replace fixed top-2 right-16 z-[95] flex gap-1 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg"
+      className="maden-find-replace fixed top-2 right-3 z-[95] flex gap-1 rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-lg"
       data-plate-prevent-deselect
     >
       <FindButton

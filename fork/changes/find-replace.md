@@ -3,7 +3,7 @@
 Find and replace, as VS Code's widget — `cmd + f`, the one shortcut. Upstream has no find, and VS
 Code's own is off for the webview.
 
-- the widget — top right, left of the buttons: `>` shows the replace row; find with match case, whole
+- the widget — the top right corner: `>` shows the replace row; find with match case, whole
   word, regex; `1 of 54`; previous, next; find in selection; close. Replace with preserve case, one, all
 - `cmd + f` — caught on the webview's window, capturing, before VS Code's listener; a selection within
   one block seeds the search

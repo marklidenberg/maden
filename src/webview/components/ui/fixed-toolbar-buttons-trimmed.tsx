@@ -5,7 +5,6 @@
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
 
-import { TOOLTIP_LEFT, ToolbarGroup } from './fixed-toolbar-right';
 import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button';
 import { MediaToolbarButton } from './media-toolbar-button';
 
@@ -16,6 +15,7 @@ import { MediaToolbarButton } from './media-toolbar-button';
 // end-fork-delete hide-mark-menu
 
 import { TableToolbarButton } from './table-toolbar-button';
+import { ToolbarGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
 // fork-add text-zoom
 
@@ -27,13 +27,13 @@ export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
 
   return (
-    // A column down the rail, the text zoom at its foot
-    <div className="maden-fixed-toolbar-buttons flex grow flex-col items-center">
+    // A row along the bar, the text zoom at its end
+    <div className="maden-fixed-toolbar-buttons flex items-center">
       {!readOnly && (
         <>
           <ToolbarGroup>
-            <UndoToolbarButton tooltipContentProps={TOOLTIP_LEFT} />
-            <RedoToolbarButton tooltipContentProps={TOOLTIP_LEFT} />
+            <UndoToolbarButton />
+            <RedoToolbarButton />
           </ToolbarGroup>
 
           <ToolbarGroup>
@@ -57,8 +57,6 @@ export function FixedToolbarButtons() {
       )}
 
       {/* fork-add text-zoom */}
-
-      <div className="grow" />
 
       <ToolbarGroup>
         <TextZoomToolbarButtons />

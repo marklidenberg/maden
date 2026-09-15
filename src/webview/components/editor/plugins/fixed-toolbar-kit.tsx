@@ -2,7 +2,7 @@
 
 import { createPlatePlugin } from 'platejs/react';
 
-// fork-mutate toolbar-right
+// fork-mutate toolbar-top
 
 // - Old
 
@@ -10,9 +10,9 @@ import { createPlatePlugin } from 'platejs/react';
 
 // - New
 
-import { FixedToolbar } from '@/components/ui/fixed-toolbar-right';
+import { FixedToolbar } from '@/components/ui/fixed-toolbar-top';
 
-// end-fork-mutate toolbar-right
+// end-fork-mutate toolbar-top
 
 // fork-mutate topbar-trimmed
 

@@ -83,34 +83,6 @@ export const PANE_ADD_EVENT = 'maden:pane-add';
 export const splitPane = (jump?: string) =>
   window.dispatchEvent(new CustomEvent(PANE_ADD_EVENT, { detail: jump }));
 
-// The pin's press.
-export const PANE_PIN_EVENT = 'maden:pane-pin';
-
-export const togglePin = () => window.dispatchEvent(new Event(PANE_PIN_EVENT));
-
-// - The focused pane's pin — the column's toggle lit
-
-let focusedPinned = false;
-
-const pinListeners = new Set<() => void>();
-
-export const getFocusedPinned = () => focusedPinned;
-
-export const setFocusedPinned = (pinned: boolean) => {
-  if (pinned === focusedPinned) return;
-
-  focusedPinned = pinned;
-  pinListeners.forEach((listener) => listener());
-};
-
-export const subscribeFocusedPinned = (listener: () => void) => {
-  pinListeners.add(listener);
-
-  return () => {
-    pinListeners.delete(listener);
-  };
-};
-
 // - One document across the panes
 
 const editors = new Map<string, SlateEditor>();

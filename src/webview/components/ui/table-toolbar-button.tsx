@@ -53,30 +53,13 @@ export function TableToolbarButton(props: DropdownMenuProps) {
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>
-        {/* fork-mutate toolbar-right */}
-
-        {/* - Old */}
-
-        {/* <ToolbarButton pressed={open} tooltip="Table" isDropdown>
-          <Table />
-        </ToolbarButton> */}
-
-        {/* - New */}
-
-        <ToolbarButton pressed={open} tooltip="Table" tooltipContentProps={{ side: 'left' }} isDropdown>
+        <ToolbarButton pressed={open} tooltip="Table" isDropdown>
           <Table />
         </ToolbarButton>
-
-        {/* end-fork-mutate toolbar-right */}
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         className="flex w-[180px] min-w-0 flex-col"
-        // fork-add toolbar-right
-
-        side="left"
-
-        // end-fork-add toolbar-right
         align="start"
       >
         <DropdownMenuGroup>

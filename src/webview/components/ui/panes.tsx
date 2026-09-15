@@ -4,8 +4,9 @@
 
 import * as React from 'react';
 
-import { GripHorizontal, PinIcon, X } from 'lucide-react';
+import { GripVertical, PinIcon, X } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import {
   type PanesState,
   addPane,
@@ -14,9 +15,7 @@ import {
   initialPanes,
   movePane,
   PANE_ADD_EVENT,
-  PANE_PIN_EVENT,
   pinPane,
-  setFocusedPinned,
 } from '@/lib/panes';
 import { cn } from '@/lib/utils';
 
@@ -31,35 +30,26 @@ export type PaneProps = {
 
 type Drag = { id: string; to: number };
 
-// The panes in a column, each a view of the document; more than one — a strip over each, a grip,
-// a pin and a close in it, the focused one ringed.
+const CORNER_BUTTON = 'h-7 w-7 bg-background/95 backdrop-blur-sm';
+
+// The panes in a column, each a view of the document, as tall as its text; a pin in its top right
+// corner — more than one, a close beside it, a grip at its top left, the focused one ringed.
 export function Panes({ children }: { children: (pane: PaneProps) => React.ReactNode }) {
   const [state, setState] = React.useState<PanesState>(initialPanes);
   const [drag, setDrag] = React.useState<Drag | null>(null);
   const columnRef = React.useRef<HTMLDivElement>(null);
   const many = state.panes.length > 1;
 
-  // - The plus — a pane under the focused one, zoomed in on a jump; the pin — the focused one's
+  // - The plus — a pane under the focused one, zoomed in on a jump
 
   React.useEffect(() => {
     const add = (event: Event) =>
       setState((state) => addPane(state, (event as CustomEvent<string | undefined>).detail));
-    const pin = () => setState((state) => pinPane(state));
 
     window.addEventListener(PANE_ADD_EVENT, add);
-    window.addEventListener(PANE_PIN_EVENT, pin);
 
-    return () => {
-      window.removeEventListener(PANE_ADD_EVENT, add);
-      window.removeEventListener(PANE_PIN_EVENT, pin);
-    };
+    return () => window.removeEventListener(PANE_ADD_EVENT, add);
   }, []);
-
-  // - The column's pin lit for the focused pane
-
-  React.useEffect(() => {
-    setFocusedPinned(!!state.panes.find((pane) => pane.id === state.focused)?.pinned);
-  }, [state]);
 
   // - A grip held: a line between panes follows the pointer; let go — the pane moved there
 
@@ -108,11 +98,7 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
   const focus = (id: string) => setState((state) => focusPane(state, id));
 
   return (
-    <div
-      ref={columnRef}
-      className="flex h-full w-full flex-col"
-      data-maden-panes={many ? 'many' : 'one'}
-    >
+    <div ref={columnRef} className="flex w-full flex-col" data-maden-panes={many ? 'many' : 'one'}>
       {state.panes.map((pane, index) => {
         const focused = pane.id === state.focused;
         const pinned = !!pane.pinned;
@@ -122,52 +108,55 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
         return (
           <section
             key={pane.id}
-            className="relative flex min-h-0 flex-1 flex-col"
+            className={cn('relative', many && 'border-t border-border')}
             data-maden-pane={pane.id}
             data-maden-pane-focused={focused}
             onFocusCapture={() => focus(pane.id)}
             onPointerDownCapture={() => focus(pane.id)}
           >
             {many && (
-              <div className="flex h-6 shrink-0 items-center border-b border-border bg-muted/40 pr-12 pl-1 text-muted-foreground select-none">
-                <button
+              <button
+                type="button"
+                aria-label="Move pane"
+                title="Drag to reorder"
+                className="absolute top-2 left-1 z-20 cursor-grab touch-none rounded-sm p-0.5 text-muted-foreground/70 hover:bg-muted hover:text-foreground active:cursor-grabbing"
+                onPointerDown={onGrip(pane.id)}
+              >
+                <GripVertical className="size-3.5" />
+              </button>
+            )}
+
+            <div className="absolute top-1 right-1 z-20 flex gap-0.5">
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                className={cn(CORNER_BUTTON, pinned && 'text-foreground')}
+                aria-label={pinned ? 'Unpin pane' : 'Pin pane'}
+                aria-pressed={pinned}
+                title={pinned ? 'Unpin pane' : 'Pin pane'}
+                onClick={() => setState((state) => pinPane(state, pane.id))}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                <PinIcon className={cn('size-3.5', pinned && 'fill-current')} />
+              </Button>
+              {many && (
+                <Button
                   type="button"
-                  aria-label="Move pane"
-                  title="Drag to reorder"
-                  className="cursor-grab touch-none rounded-sm p-0.5 hover:bg-muted hover:text-foreground active:cursor-grabbing"
-                  onPointerDown={onGrip(pane.id)}
-                >
-                  <GripHorizontal className="size-4" />
-                </button>
-                <span className="flex-1" />
-                <button
-                  type="button"
-                  aria-label={pinned ? 'Unpin pane' : 'Pin pane'}
-                  aria-pressed={pinned}
-                  title={pinned ? 'Unpin pane' : 'Pin pane'}
-                  className={cn(
-                    'rounded-sm p-0.5 hover:bg-muted hover:text-foreground',
-                    pinned && 'text-foreground'
-                  )}
-                  onClick={() => setState((state) => pinPane(state, pane.id))}
-                  onMouseDown={(e) => e.preventDefault()}
-                >
-                  <PinIcon className={cn('size-4', pinned && 'fill-current')} />
-                </button>
-                <button
-                  type="button"
+                  size="icon"
+                  variant="outline"
+                  className={CORNER_BUTTON}
                   aria-label="Close pane"
                   title="Close pane"
-                  className="rounded-sm p-0.5 hover:bg-muted hover:text-foreground"
                   onClick={() => setState((state) => closePane(state, pane.id))}
                   onMouseDown={(e) => e.preventDefault()}
                 >
-                  <X className="size-4" />
-                </button>
-              </div>
-            )}
+                  <X className="size-3.5" />
+                </Button>
+              )}
+            </div>
 
-            <div className="relative min-h-0 flex-1">
+            <div className="relative">
               {children({
                 focused,
                 from: pane.from,

@@ -987,29 +987,24 @@
     z-index: 90;
   }
 
-  /* fork-add toolbar-right */
+  /* fork-add toolbar-top */
 
-  /* The bar, a rail down the right edge: hidden — the text runs under the buttons; shown — moved aside */
-  [data-maden-topbar='hidden'] .maden-fixed-toolbar-right {
+  /* The bar, a row at the top of the page, hidden with the toggle; the page's text right under it */
+  [data-maden-topbar='hidden'] .maden-fixed-toolbar-top {
     display: none;
   }
 
-  [data-maden-topbar='visible'] {
-    padding-right: 3.5rem;
-  }
-
-  /* No bar above the page — the zoom's breadcrumb on the top line, confluence's too */
   body [data-maden-topbar] .page-content {
-    padding-top: 0.5rem !important;
+    padding-top: 0.75rem !important;
   }
 
-  /* end-fork-add toolbar-right */
+  /* end-fork-add toolbar-top */
 
   /* fork-add panes */
 
-  /* The rail: the focused pane's alone */
-  [data-maden-pane-focused='false'] .maden-fixed-toolbar-right {
-    display: none;
+  /* Panes, as tall as their text — the room under it kept short */
+  [data-maden-panes='many'] .page-content {
+    padding-bottom: 2rem !important;
   }
 
   /* end-fork-add panes */

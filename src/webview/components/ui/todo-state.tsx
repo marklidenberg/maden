@@ -41,7 +41,7 @@ const ICONS: Record<TodoState, React.FC | null> = {
 };
 
 const BOX =
-  'maden-task-checkbox -left-6 absolute top-1 flex size-4 items-center justify-center rounded-[4px] border border-input text-muted-foreground [&_svg]:size-3.5 data-[state=done]:border-primary data-[state=done]:bg-primary data-[state=done]:text-primary-foreground';
+  'maden-task-checkbox -left-6 absolute top-1 flex size-4 items-center justify-center rounded-[4px] border border-foreground/40 text-muted-foreground [&_svg]:size-3.5 data-[state=done]:border-primary data-[state=done]:bg-primary data-[state=done]:text-primary-foreground';
 
 function TodoStateIcon({ state }: { state: TodoState }) {
   const Icon = ICONS[state];

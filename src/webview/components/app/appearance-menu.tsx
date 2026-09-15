@@ -36,9 +36,14 @@ import { SpotlightButton } from './spotlight-button';
 // fork-add panes
 
 import { PaneAddButton } from './pane-add-button';
-import { PanePinButton } from './pane-pin-button';
 
 // end-fork-add panes
+
+// fork-add toolbar-top
+
+import { setToolbarSlot } from '@/lib/toolbar-top';
+
+// end-fork-add toolbar-top
 
 export type FontMode = 'default' | 'serif' | 'mono';
 
@@ -76,7 +81,7 @@ export function AppearanceMenu({
   ];
 
   return (
-    // fork-mutate toolbar-right
+    // fork-mutate toolbar-top
 
     // - Old
 
@@ -84,9 +89,9 @@ export function AppearanceMenu({
 
     // - New
 
-    // A column in the top right corner, over the rail
-    <div className="pointer-events-none fixed top-2 right-3 z-[95] flex flex-col gap-1">
-      {/* end-fork-mutate toolbar-right */}
+    // A row at the top of the page, centered — scrolls with the text; the focused pane's buttons after these
+    <div className="flex flex-wrap items-center justify-center gap-1 px-4 pt-2 pb-1">
+      {/* end-fork-mutate toolbar-top */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -100,16 +105,7 @@ export function AppearanceMenu({
           </Button>
         </DropdownMenuTrigger>
 
-        {/* fork-mutate toolbar-right */}
-
-        {/* - Old */}
-
-        {/* <DropdownMenuContent align="end" className="w-[340px] p-2"> */}
-
-        {/* - New */}
-
-        <DropdownMenuContent side="left" align="start" className="w-[340px] p-2">
-          {/* end-fork-mutate toolbar-right */}
+        <DropdownMenuContent align="end" className="w-[340px] p-2">
           <DropdownMenuLabel>Maden</DropdownMenuLabel>
           <DropdownMenuItem onSelect={onOpenAiSettings}>
             <SparklesIcon />
@@ -193,9 +189,14 @@ export function AppearanceMenu({
       {/* fork-add panes */}
 
       <PaneAddButton />
-      <PanePinButton />
 
       {/* end-fork-add panes */}
+
+      {/* fork-add toolbar-top */}
+
+      <div ref={setToolbarSlot} className="flex items-center" />
+
+      {/* end-fork-add toolbar-top */}
     </div>
   );
 }

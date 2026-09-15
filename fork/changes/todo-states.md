@@ -11,7 +11,8 @@
 
 GFM's check reads `[ ]` and `[x]` alone, so it is off, and a paragraph exit reads the six — a bullet's
 box, as typed; an ordered item's stays text. `checked` stays upstream's; the other four ride beside it
-as `todoState`, written back as the item's text. Enter drops it as upstream drops `checked`.
+as `todoState`, written back as the item's text. Enter drops it as upstream drops `checked`. The
+box's border is the text's color, faded — upstream's input border is too faint to see.
 
 Files:
 

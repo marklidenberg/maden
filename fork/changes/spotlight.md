@@ -1,7 +1,8 @@
 # spotlight
 
 A search over every bullet of the file, opened by a magnifier between the three dots and the bar's
-toggle, or by `Maden: Spotlight` — `ctrl+p`, rebound in VS Code's keyboard shortcuts. Empty,
+toggle, or by `Maden: Spotlight` — `ctrl+p`, `cmd+p` on a mac, taken from VS Code's quick open
+while a Maden tab holds the focus. Empty,
 it lists the recent bullets — zoomed into or typed in, the latest first, scrolled; typed, a fuzzy
 search — each word of the query a subsequence, runs and word starts first. Arrows move, enter picks,
 `ctrl+p` again steps down. A pick zooms in on the bullet, the caret at its end, a fold over it
@@ -25,5 +26,5 @@ Files:
 - `src/extension/extension.ts` — the command registered
 - `src/extension/MadenMarkdownEditorProvider.ts` — each panel tracked
 - `src/shared/messages.ts` — `openSpotlight`
-- `package.json` — the command, `ctrl+p`, the palette entry
+- `package.json` — the command, `ctrl+p`, `cmd+p` on a mac, the palette entry
 - `tests/unit/spotlight.test.ts` — ours

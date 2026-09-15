@@ -32,6 +32,11 @@ import { openLink } from './services/link-open';
 import { markExternal, readExternalText } from './services/external-reload';
 
 // end-fork-add external-reload
+// fork-add spotlight
+
+import { trackSpotlightPanel } from './services/spotlight';
+
+// end-fork-add spotlight
 import { getWebviewHtml } from './services/webview-html';
 
 type MarkdownCustomDocument = vscode.CustomDocument & {
@@ -201,6 +206,12 @@ export class MadenMarkdownEditorProvider
       const panels = this.panelsByDocument.get(key) ?? new Set<vscode.WebviewPanel>();
       panels.add(webviewPanel);
       this.panelsByDocument.set(key, panels);
+
+      // fork-add spotlight
+
+      trackSpotlightPanel(webviewPanel);
+
+      // end-fork-add spotlight
 
       let isReady = false;
       let pendingMessage: HostToWebviewMessage | undefined;

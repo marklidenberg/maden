@@ -45,6 +45,28 @@
           "description": "Debounce delay in milliseconds before writing webview changes to Markdown files."
         }
       }
+    },
+    "commands": [
+      {
+        "command": "maden.spotlight",
+        "title": "Spotlight",
+        "category": "Maden"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "maden.spotlight",
+        "key": "ctrl+p",
+        "when": "activeCustomEditorId == 'maden.plateMarkdownEditor' && !sideBarFocus && !panelFocus && !inQuickOpen"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "maden.spotlight",
+          "when": "activeCustomEditorId == 'maden.plateMarkdownEditor'"
+        }
+      ]
     }
   },
   "scripts": {

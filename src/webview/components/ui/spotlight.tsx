@@ -146,7 +146,8 @@ export function Spotlight() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[100] bg-black/10" />
+        {/* Not `Dialog.Overlay`: its scroll lock drops the body's padding and shifts the page */}
+        <div className="pointer-events-auto fixed inset-0 z-[100] bg-black/10" />
         <Dialog.Content
           aria-describedby={undefined}
           className="maden-spotlight fixed top-[12vh] left-1/2 z-[100] flex max-h-[70vh] w-[min(36rem,calc(100vw-2rem))] -translate-x-1/2 flex-col overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-lg"

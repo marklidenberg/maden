@@ -27,7 +27,16 @@ export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
 
   return (
-    <div className="maden-fixed-toolbar-buttons scrollbar-hide flex w-[calc(100%-2.75rem)] overflow-x-auto pr-2">
+    // fork-delete topbar-toggle
+
+    // <div className="maden-fixed-toolbar-buttons scrollbar-hide flex w-[calc(100%-2.75rem)] overflow-x-auto pr-2">
+
+    // end-fork-delete topbar-toggle
+    // fork-add topbar-toggle
+
+    <div className="maden-fixed-toolbar-buttons scrollbar-hide flex w-[calc(100%-5rem)] overflow-x-auto pr-2">
+      {/* end-fork-add topbar-toggle */}
+
       {!readOnly && (
         <>
           <ToolbarGroup>

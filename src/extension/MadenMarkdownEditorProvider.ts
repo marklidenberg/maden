@@ -37,6 +37,11 @@ import { markExternal, readExternalText } from './services/external-reload';
 import { trackSpotlightPanel } from './services/spotlight';
 
 // end-fork-add spotlight
+// fork-add keep-tabs
+
+import { keepTabsProvider } from './services/keep-tabs';
+
+// end-fork-add keep-tabs
 import { getWebviewHtml } from './services/webview-html';
 
 type MarkdownCustomDocument = vscode.CustomDocument & {
@@ -74,7 +79,16 @@ export class MadenMarkdownEditorProvider
 
     return vscode.window.registerCustomEditorProvider(
       MadenMarkdownEditorProvider.viewType,
-      provider,
+      // fork-delete keep-tabs
+
+      // provider,
+
+      // end-fork-delete keep-tabs
+      // fork-add keep-tabs
+
+      keepTabsProvider(provider),
+
+      // end-fork-add keep-tabs
       {
         supportsMultipleEditorsPerDocument: true,
         webviewOptions: {

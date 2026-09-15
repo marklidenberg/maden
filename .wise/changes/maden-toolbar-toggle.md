@@ -17,8 +17,8 @@ The top bar hidden by default; a button at the top right shows and hides it, the
 - wise-plan
   - [x] - button, default, regions
   - [x] - change doc
-  - [ ] - tests, typecheck
-  - [ ] - merge into `fork-fba28f70`
+  - [x] - tests, typecheck
+  - [x] - merge into `fork-fba28f70`
 
 ---
 

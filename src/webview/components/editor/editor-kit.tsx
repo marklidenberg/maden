@@ -75,7 +75,20 @@ import { SpotlightKit } from '@/components/editor/plugins/spotlight-kit';
 
 // end-fork-add spotlight
 
+// fork-add panes
+
+import { PanesKit } from '@/components/editor/plugins/panes-kit';
+
+// end-fork-add panes
+
 export const EditorKit = [
+  // fork-add panes
+
+  // First — a change sent to the other panes before any handler that may claim it.
+  ...PanesKit,
+
+  // end-fork-add panes
+
   ...AIKit,
 
   // Elements

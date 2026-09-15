@@ -47,6 +47,12 @@ import {
 } from '@/lib/find-replace';
 import { cn } from '@/lib/utils';
 
+// fork-add panes
+
+import { isPaneFocused } from '@/lib/panes';
+
+// end-fork-add panes
+
 type FindLeaf = TText & { findCurrent?: boolean; findMatch?: boolean; findScope?: boolean };
 
 const keepFocus = (event: React.MouseEvent) => event.preventDefault();
@@ -115,6 +121,11 @@ export function FindReplaceWidget() {
   React.useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!isHotkey('mod+f', event)) return;
+      // fork-add panes
+
+      if (!isPaneFocused(editor)) return;
+
+      // end-fork-add panes
 
       event.preventDefault();
       event.stopPropagation();

@@ -1004,4 +1004,13 @@
   }
 
   /* end-fork-add toolbar-right */
+
+  /* fork-add panes */
+
+  /* The rail: the focused pane's alone */
+  [data-maden-pane-focused='false'] .maden-fixed-toolbar-right {
+    display: none;
+  }
+
+  /* end-fork-add panes */
 }

@@ -44,6 +44,23 @@ import { keepBlocks } from '@/lib/keep-blocks';
 
 // end-fork-add fold-state
 
+// fork-add panes
+
+import { type PaneProps, Panes } from '@/components/ui/panes';
+import { closeFind } from '@/lib/find-replace';
+import { PanePlugin, registerPane } from '@/lib/panes';
+
+// The host's text as the editor holds it — one across the panes, held by the first
+const hostSync = {
+  isApplyingRemoteChangeRef: { current: false },
+  lastSyncedMarkdownRef: { current: '' },
+  revisionRef: { current: undefined as number | undefined },
+};
+
+const noExport = () => {};
+
+// end-fork-add panes
+
 const TOPBAR_STORAGE_KEY = 'maden.ui.topbarVisible';
 const FONT_MODE_STORAGE_KEY = 'maden.ui.fontMode';
 const WIDE_MODE_STORAGE_KEY = 'maden.ui.wideMode';
@@ -66,6 +83,11 @@ const readStoredThemeMode = (): MadenThemeMode => {
 function MarkdownEditor({
   documentState,
   onExportActionsChange,
+  // fork-add panes
+
+  pane,
+
+  // end-fork-add panes
   wideMode,
 }: {
   documentState: {
@@ -82,6 +104,11 @@ function MarkdownEditor({
     readOnly: boolean;
   };
   onExportActionsChange: (actions: ExportActions | null) => void;
+  // fork-add panes
+
+  pane: PaneProps;
+
+  // end-fork-add panes
   wideMode: boolean;
 }) {
   const editor = usePlateEditor(
@@ -96,16 +123,56 @@ function MarkdownEditor({
   useEditorDropHandlers(editor);
   useEditorPasteHandlers(editor);
 
-  const isApplyingRemoteChangeRef = React.useRef(false);
-  const lastSyncedMarkdownRef = React.useRef('');
+  // fork-add panes
+
+  const paneRef = React.useRef(pane);
+
+  paneRef.current = pane;
+
+  // - Among the panes — the document from one, the view from the pane split
+
+  React.useEffect(() => registerPane(pane.id, editor, pane.from), [editor, pane.id, pane.from]);
+
+  // - Focused — the singletons act on it, the caret in it; not — its find closed
+
+  React.useEffect(() => {
+    editor.setOption(PanePlugin, 'focused', pane.focused);
+
+    if (!pane.focused) closeFind(editor);
+    else if (!editor.api.isFocused()) editor.tf.focus();
+  }, [editor, pane.focused]);
+
+  // end-fork-add panes
+  // fork-delete panes
+
+  // const isApplyingRemoteChangeRef = React.useRef(false);
+  // const lastSyncedMarkdownRef = React.useRef('');
+
+  // end-fork-delete panes
+  // fork-add panes
+
+  const { isApplyingRemoteChangeRef, lastSyncedMarkdownRef, revisionRef } = hostSync;
+
+  // end-fork-add panes
   // fork-add external-reload
 
   // The host's revision of the text the editor holds — a write built on an older one is dropped
-  const revisionRef = React.useRef<number | undefined>(undefined);
+  // fork-delete panes
+
+  // const revisionRef = React.useRef<number | undefined>(undefined);
+
+  // end-fork-delete panes
 
   // end-fork-add external-reload
 
   React.useEffect(() => {
+    // fork-add panes
+
+    // - The first pane's — the others take its every change
+
+    if (!paneRef.current.primary) return;
+
+    // end-fork-add panes
     // fork-add external-reload
 
     // - A text from outside the editor has not taken yet
@@ -228,6 +295,11 @@ function MarkdownEditor({
 
   const onValueChange = React.useCallback(
     ({ editor, value }: { editor: { children: Value }; value: Value }) => {
+      // fork-add panes
+
+      if (!paneRef.current.primary) return;
+
+      // end-fork-add panes
       if (isApplyingRemoteChangeRef.current) {
         return;
       }
@@ -463,13 +535,33 @@ export function App() {
           />
         </ErrorBoundary>
 
-        <ErrorBoundary label="Markdown editor">
+        {/* fork-delete panes */}
+
+        {/* <ErrorBoundary label="Markdown editor">
           <MarkdownEditor
             documentState={documentState}
             onExportActionsChange={setExportActions}
             wideMode={wideModeEnabled}
           />
-        </ErrorBoundary>
+        </ErrorBoundary> */}
+
+        {/* end-fork-delete panes */}
+        {/* fork-add panes */}
+
+        <Panes>
+          {(pane) => (
+            <ErrorBoundary label="Markdown editor">
+              <MarkdownEditor
+                documentState={documentState}
+                onExportActionsChange={pane.primary ? setExportActions : noExport}
+                pane={pane}
+                wideMode={wideModeEnabled}
+              />
+            </ErrorBoundary>
+          )}
+        </Panes>
+
+        {/* end-fork-add panes */}
 
         <AiSettingsDialog
           open={aiSettingsOpen}

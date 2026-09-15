@@ -33,6 +33,12 @@ import { SpotlightButton } from './spotlight-button';
 
 // end-fork-add spotlight
 
+// fork-add panes
+
+import { PaneAddButton } from './pane-add-button';
+
+// end-fork-add panes
+
 export type FontMode = 'default' | 'serif' | 'mono';
 
 export type ExportActions = {
@@ -180,6 +186,12 @@ export function AppearanceMenu({
       <TopbarToggle visible={topbarVisible} onToggle={onTopbarToggle} />
 
       {/* end-fork-add topbar-toggle */}
+
+      {/* fork-add panes */}
+
+      <PaneAddButton />
+
+      {/* end-fork-add panes */}
     </div>
   );
 }

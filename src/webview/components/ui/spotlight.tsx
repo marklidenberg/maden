@@ -22,6 +22,12 @@ import {
 } from '@/lib/spotlight';
 import { cn } from '@/lib/utils';
 
+// fork-add panes
+
+import { isPaneFocused } from '@/lib/panes';
+
+// end-fork-add panes
+
 const keepFocus = (event: React.MouseEvent) => event.preventDefault();
 
 // The letters matched, bold.
@@ -90,6 +96,11 @@ export function Spotlight() {
 
   React.useEffect(() => {
     const show = () => {
+      // fork-add panes
+
+      if (!isPaneFocused(editor)) return;
+
+      // end-fork-add panes
       if (openRef.current) {
         setSelected((index) => index + 1);
 

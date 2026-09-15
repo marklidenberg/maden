@@ -38,6 +38,11 @@ import { postToHost } from '@/vscode';
 import { keepSelection } from '@/lib/keep-selection';
 
 // end-fork-add external-reload
+// fork-add fold-state
+
+import { keepBlocks } from '@/lib/keep-blocks';
+
+// end-fork-add fold-state
 
 const TOPBAR_STORAGE_KEY = 'maden.ui.topbarVisible';
 const FONT_MODE_STORAGE_KEY = 'maden.ui.fontMode';
@@ -159,13 +164,18 @@ function MarkdownEditor({
     const selection = editor.selection;
 
     // end-fork-add external-reload
+    // fork-add fold-state
+
+    const kept = keepBlocks(editor.children, nextValue, selection);
+
+    // end-fork-add fold-state
 
     isApplyingRemoteChangeRef.current = true;
     editor.tf.withoutSaving(() => {
       editor.tf.setValue(nextValue);
       // fork-add external-reload
 
-      keepSelection(editor, selection);
+      keepSelection(editor, kept);
 
       // end-fork-add external-reload
     });

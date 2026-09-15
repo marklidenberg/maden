@@ -182,4 +182,11 @@ export const registerPane = (id: string, editor: SlateEditor, from?: string, jum
   };
 };
 
+// fork-add session
+
+// A pane's editor — its view saved off it.
+export const paneEditor = (id: string): SlateEditor | undefined => editors.get(id);
+
+// end-fork-add session
+
 // end-fork-add panes

@@ -231,18 +231,18 @@ export const normalizeOpenDocumentMarkdown = (markdown: string): string => {
     result = normalizeHtmlBreaks(result);
     result = normalizeStandaloneFormattedLineBreaks(result);
 
-    // fork-delete markdown-angle-text
+    // fork-mutate markdown-angle-text
+
+    // - Old
 
     // return escapeMarkdownPlaceholderAngles(result);
 
-    // end-fork-delete markdown-angle-text
-
-    // fork-add markdown-angle-text
+    // - New
 
     return applyOutsideCodeSpans(result, (outsideCode) =>
       escapeMarkdownPlaceholderAngles(escapeTextAngles(outsideCode))
     );
 
-    // end-fork-add markdown-angle-text
+    // end-fork-mutate markdown-angle-text
   });
 };

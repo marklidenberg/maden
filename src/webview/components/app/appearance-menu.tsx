@@ -76,16 +76,17 @@ export function AppearanceMenu({
   ];
 
   return (
-    // fork-delete toolbar-right
+    // fork-mutate toolbar-right
+
+    // - Old
 
     // <div className="pointer-events-none fixed top-1.5 right-2 z-[95]">
 
-    // end-fork-delete toolbar-right
-    // fork-add toolbar-right
+    // - New
 
     // A column in the top right corner, over the rail
     <div className="pointer-events-none fixed top-2 right-3 z-[95] flex flex-col gap-1">
-      {/* end-fork-add toolbar-right */}
+      {/* end-fork-mutate toolbar-right */}
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button
@@ -99,15 +100,16 @@ export function AppearanceMenu({
           </Button>
         </DropdownMenuTrigger>
 
-        {/* fork-delete toolbar-right */}
+        {/* fork-mutate toolbar-right */}
+
+        {/* - Old */}
 
         {/* <DropdownMenuContent align="end" className="w-[340px] p-2"> */}
 
-        {/* end-fork-delete toolbar-right */}
-        {/* fork-add toolbar-right */}
+        {/* - New */}
 
         <DropdownMenuContent side="left" align="start" className="w-[340px] p-2">
-          {/* end-fork-add toolbar-right */}
+          {/* end-fork-mutate toolbar-right */}
           <DropdownMenuLabel>Maden</DropdownMenuLabel>
           <DropdownMenuItem onSelect={onOpenAiSettings}>
             <SparklesIcon />

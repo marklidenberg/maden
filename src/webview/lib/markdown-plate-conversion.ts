@@ -460,17 +460,17 @@ export const serializePlateValueToMarkdown = (
     normalizeLineEndings(
       serializeDetailsSections(value, (currentValue) =>
         serializeMd(editor as never, {
-          // fork-delete todo-states
+          // fork-mutate todo-states
+
+          // - Old
 
           // value: currentValue,
 
-          // end-fork-delete todo-states
-
-          // fork-add todo-states
+          // - New
 
           value: writeTodoStatesAsText(currentValue),
 
-          // end-fork-add todo-states
+          // end-fork-mutate todo-states
         })
       )
     )

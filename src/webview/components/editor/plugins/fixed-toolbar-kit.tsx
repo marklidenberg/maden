@@ -2,29 +2,29 @@
 
 import { createPlatePlugin } from 'platejs/react';
 
-// fork-delete toolbar-right
+// fork-mutate toolbar-right
+
+// - Old
 
 // import { FixedToolbar } from '@/components/ui/fixed-toolbar';
 
-// end-fork-delete toolbar-right
-
-// fork-add toolbar-right
+// - New
 
 import { FixedToolbar } from '@/components/ui/fixed-toolbar-right';
 
-// end-fork-add toolbar-right
+// end-fork-mutate toolbar-right
 
-// fork-delete topbar-trimmed
+// fork-mutate topbar-trimmed
+
+// - Old
 
 // import { FixedToolbarButtons } from '@/components/ui/fixed-toolbar-buttons';
 
-// end-fork-delete topbar-trimmed
-
-// fork-add topbar-trimmed
+// - New
 
 import { FixedToolbarButtons } from '@/components/ui/fixed-toolbar-buttons-trimmed';
 
-// end-fork-add topbar-trimmed
+// end-fork-mutate topbar-trimmed
 
 export const FixedToolbarKit = [
   createPlatePlugin({

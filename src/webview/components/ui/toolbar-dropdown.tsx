@@ -52,15 +52,16 @@ export function ToolbarDropdown({
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>{trigger(open)}</DropdownMenuTrigger>
 
-      {/* fork-delete toolbar-right */}
+      {/* fork-mutate toolbar-right */}
+
+      {/* - Old */}
 
       {/* <DropdownMenuContent align={align} alignOffset={alignOffset} className={contentClassName}> */}
 
-      {/* end-fork-delete toolbar-right */}
-      {/* fork-add toolbar-right */}
+      {/* - New */}
 
       <DropdownMenuContent side={side} align={align} alignOffset={alignOffset} className={contentClassName}>
-        {/* end-fork-add toolbar-right */}
+        {/* end-fork-mutate toolbar-right */}
         {renderContent({ close, open, setOpen })}
       </DropdownMenuContent>
     </DropdownMenu>

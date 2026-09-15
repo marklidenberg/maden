@@ -1,7 +1,7 @@
 # spotlight
 
-A search over every bullet of the file, opened by a magnifier between the three dots and the top
-bar's toggle, or by `Maden: Spotlight` — `ctrl+p`, rebound in VS Code's keyboard shortcuts. Empty,
+A search over every bullet of the file, opened by a magnifier between the three dots and the bar's
+toggle, or by `Maden: Spotlight` — `ctrl+p`, rebound in VS Code's keyboard shortcuts. Empty,
 it lists the recent bullets — zoomed into or typed in, the latest first, scrolled; typed, a fuzzy
 search — each word of the query a subsequence, runs and word starts first. Arrows move, enter picks,
 `ctrl+p` again steps down. A pick zooms in on the bullet, the caret at its end, a fold over it
@@ -20,8 +20,7 @@ Files:
 - `src/webview/components/editor/plugins/spotlight-kit.tsx` — ours
 - `src/webview/components/app/spotlight-button.tsx` — ours: the magnifier
 - `src/webview/components/editor/editor-kit.tsx` — the kit, after `NodeZoomKit`
-- `src/webview/components/app/appearance-menu.tsx` — the magnifier, before the top bar's toggle
-- `src/webview/components/ui/fixed-toolbar-buttons-trimmed.tsx` — the top bar clear of the magnifier
+- `src/webview/components/app/appearance-menu.tsx` — the magnifier, before the bar's toggle
 - `src/extension/services/spotlight.ts` — ours: `maden.spotlight`, sent to the active panel
 - `src/extension/extension.ts` — the command registered
 - `src/extension/MadenMarkdownEditorProvider.ts` — each panel tracked

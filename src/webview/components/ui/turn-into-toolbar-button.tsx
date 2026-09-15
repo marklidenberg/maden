@@ -163,14 +163,31 @@ export function TurnIntoToolbarButton(
   return (
     <Popover open={open} onOpenChange={setOpen} modal={false} {...props}>
       <PopoverTrigger asChild>
-        <ToolbarButton
+        {/* fork-delete toolbar-right */}
+
+        {/* <ToolbarButton
           className="min-w-[125px]"
           pressed={open}
           tooltip={open ? undefined : 'Turn into'}
           isDropdown
         >
           {selectedItem.label}
+        </ToolbarButton> */}
+
+        {/* end-fork-delete toolbar-right */}
+        {/* fork-add toolbar-right */}
+
+        {/* The block type's icon — a label is too wide for the rail */}
+        <ToolbarButton
+          pressed={open}
+          tooltip={open ? undefined : `Turn into · ${selectedItem.label}`}
+          tooltipContentProps={{ side: 'left' }}
+          isDropdown
+        >
+          {selectedItem.icon}
         </ToolbarButton>
+
+        {/* end-fork-add toolbar-right */}
       </PopoverTrigger>
 
       <PopoverPrimitive.Portal>
@@ -181,6 +198,11 @@ export function TurnIntoToolbarButton(
           e.preventDefault();
           editor.tf.focus();
         }}
+        // fork-add toolbar-right
+
+        side="left"
+
+        // end-fork-add toolbar-right
         align="start"
       >
         <div

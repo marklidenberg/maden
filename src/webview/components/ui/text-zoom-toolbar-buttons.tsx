@@ -13,6 +13,7 @@ import {
   zoomTextOut,
 } from '@/lib/text-zoom';
 
+import { TOOLTIP_LEFT } from './fixed-toolbar-right';
 import { ToolbarButton } from './toolbar';
 
 export function TextZoomToolbarButtons() {
@@ -32,6 +33,7 @@ export function TextZoomToolbarButtons() {
         onClick={() => setZoom(zoomTextOut)}
         onMouseDown={(e) => e.preventDefault()}
         tooltip="Smaller text"
+        tooltipContentProps={TOOLTIP_LEFT}
       >
         <AArrowDownIcon />
       </ToolbarButton>
@@ -41,6 +43,7 @@ export function TextZoomToolbarButtons() {
         onClick={() => setZoom(1)}
         onMouseDown={(e) => e.preventDefault()}
         tooltip="Reset text size"
+        tooltipContentProps={TOOLTIP_LEFT}
       >
         {Math.round(zoom * 100)}%
       </ToolbarButton>
@@ -50,6 +53,7 @@ export function TextZoomToolbarButtons() {
         onClick={() => setZoom(zoomTextIn)}
         onMouseDown={(e) => e.preventDefault()}
         tooltip="Larger text"
+        tooltipContentProps={TOOLTIP_LEFT}
       >
         <AArrowUpIcon />
       </ToolbarButton>

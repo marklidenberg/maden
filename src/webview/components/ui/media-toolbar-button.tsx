@@ -106,8 +106,18 @@ export function MediaToolbarButton({
         </ToolbarSplitButtonPrimary>
 
         <ToolbarDropdown
+          // fork-delete toolbar-right
+
+          // align="start"
+          // alignOffset={-32}
+
+          // end-fork-delete toolbar-right
+          // fork-add toolbar-right
+
+          side="left"
           align="start"
-          alignOffset={-32}
+
+          // end-fork-add toolbar-right
           renderContent={({ close }) => (
             <DropdownMenuGroup>
               <DropdownMenuItem

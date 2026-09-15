@@ -21,6 +21,11 @@ type ToolbarDropdownProps = Omit<DropdownMenuProps, 'open' | 'onOpenChange'> & {
   alignOffset?: React.ComponentProps<typeof DropdownMenuContent>['alignOffset'];
   contentClassName?: string;
   renderContent: ToolbarDropdownRender;
+  // fork-add toolbar-right
+
+  side?: React.ComponentProps<typeof DropdownMenuContent>['side'];
+
+  // end-fork-add toolbar-right
   trigger: (open: boolean) => React.ReactNode;
 };
 
@@ -29,6 +34,11 @@ export function ToolbarDropdown({
   alignOffset,
   contentClassName,
   renderContent,
+  // fork-add toolbar-right
+
+  side,
+
+  // end-fork-add toolbar-right
   trigger,
   ...props
 }: ToolbarDropdownProps) {
@@ -42,7 +52,15 @@ export function ToolbarDropdown({
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>{trigger(open)}</DropdownMenuTrigger>
 
-      <DropdownMenuContent align={align} alignOffset={alignOffset} className={contentClassName}>
+      {/* fork-delete toolbar-right */}
+
+      {/* <DropdownMenuContent align={align} alignOffset={alignOffset} className={contentClassName}> */}
+
+      {/* end-fork-delete toolbar-right */}
+      {/* fork-add toolbar-right */}
+
+      <DropdownMenuContent side={side} align={align} alignOffset={alignOffset} className={contentClassName}>
+        {/* end-fork-add toolbar-right */}
         {renderContent({ close, open, setOpen })}
       </DropdownMenuContent>
     </DropdownMenu>

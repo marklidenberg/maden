@@ -1,6 +1,6 @@
 # topbar-trimmed
 
-The top bar keeps undo, redo, Turn into, table, insert image, insert file, the three dots. Upstream
+The bar keeps undo, redo, Turn into, table, insert image, insert file, the three dots. Upstream
 ships ~30.
 
 Source view goes with the rest — "Reopen Editor With…" is the way back.

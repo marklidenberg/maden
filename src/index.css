@@ -986,4 +986,22 @@
     right: 0;
     z-index: 90;
   }
+
+  /* fork-add toolbar-right */
+
+  /* The bar, a rail down the right edge: hidden — the text runs under the buttons; shown — moved aside */
+  [data-maden-topbar='hidden'] .maden-fixed-toolbar-right {
+    display: none;
+  }
+
+  [data-maden-topbar='visible'] {
+    padding-right: 3.5rem;
+  }
+
+  /* No bar above the page — the zoom's breadcrumb on the top line, confluence's too */
+  body [data-maden-topbar] .page-content {
+    padding-top: 0.5rem !important;
+  }
+
+  /* end-fork-add toolbar-right */
 }

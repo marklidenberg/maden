@@ -1,6 +1,6 @@
 # text-zoom
 
-The top bar's right end makes the text smaller or larger; the percentage between the two buttons
+The bar's foot makes the text smaller or larger; the percentage between the two buttons
 resets it. Upstream has no zoom.
 
 A step is CSS `zoom` on each top-level block — text, boxes and images alike — so the page's padding

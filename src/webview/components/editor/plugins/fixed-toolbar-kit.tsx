@@ -2,7 +2,17 @@
 
 import { createPlatePlugin } from 'platejs/react';
 
-import { FixedToolbar } from '@/components/ui/fixed-toolbar';
+// fork-delete toolbar-right
+
+// import { FixedToolbar } from '@/components/ui/fixed-toolbar';
+
+// end-fork-delete toolbar-right
+
+// fork-add toolbar-right
+
+import { FixedToolbar } from '@/components/ui/fixed-toolbar-right';
+
+// end-fork-add toolbar-right
 
 // fork-delete topbar-trimmed
 

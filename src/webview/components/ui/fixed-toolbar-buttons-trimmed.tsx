@@ -5,6 +5,7 @@
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
 
+import { TOOLTIP_LEFT, ToolbarGroup } from './fixed-toolbar-right';
 import { RedoToolbarButton, UndoToolbarButton } from './history-toolbar-button';
 import { MediaToolbarButton } from './media-toolbar-button';
 
@@ -15,7 +16,6 @@ import { MediaToolbarButton } from './media-toolbar-button';
 // end-fork-delete hide-mark-menu
 
 import { TableToolbarButton } from './table-toolbar-button';
-import { ToolbarGroup } from './toolbar';
 import { TurnIntoToolbarButton } from './turn-into-toolbar-button';
 // fork-add text-zoom
 
@@ -27,29 +27,13 @@ export function FixedToolbarButtons() {
   const readOnly = useEditorReadOnly();
 
   return (
-    // fork-delete topbar-toggle
-
-    // <div className="maden-fixed-toolbar-buttons scrollbar-hide flex w-[calc(100%-2.75rem)] overflow-x-auto pr-2">
-
-    // end-fork-delete topbar-toggle
-    // fork-add topbar-toggle
-    // fork-delete spotlight
-
-    // <div className="maden-fixed-toolbar-buttons scrollbar-hide flex w-[calc(100%-5rem)] overflow-x-auto pr-2">
-
-    // end-fork-delete spotlight
-    // fork-add spotlight
-
-    // Clear of the magnifier too
-    <div className="maden-fixed-toolbar-buttons scrollbar-hide flex w-[calc(100%-7.25rem)] overflow-x-auto pr-2">
-      {/* end-fork-add spotlight */}
-      {/* end-fork-add topbar-toggle */}
-
+    // A column down the rail, the text zoom at its foot
+    <div className="maden-fixed-toolbar-buttons flex grow flex-col items-center">
       {!readOnly && (
         <>
           <ToolbarGroup>
-            <UndoToolbarButton />
-            <RedoToolbarButton />
+            <UndoToolbarButton tooltipContentProps={TOOLTIP_LEFT} />
+            <RedoToolbarButton tooltipContentProps={TOOLTIP_LEFT} />
           </ToolbarGroup>
 
           <ToolbarGroup>

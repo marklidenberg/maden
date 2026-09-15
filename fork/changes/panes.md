@@ -4,7 +4,8 @@ The page splits into panes, one above the other, each a view of the one document
 breadcrumb, folds and caret, as tall as its text. A plus in the bar opens a pane under the focused
 one, split off it: the same zoom, the same folds, the caret where it stood. Each pane carries a pin
 in its top right corner, on the pane, as the bar's buttons; more than one, a close beside it and a
-small grip at the pane's top left, dragged to reorder — a line shows where it lands. The focused
+small grip left of the pane, dragged to reorder — a line shows where it lands. The grip and the
+corner buttons sit centered on the zoom's bar, its back, reset and breadcrumb. The focused
 pane is ringed; a click or the caret focuses one. The last pane stays, closed or not. Upstream
 shows the document once.
 
@@ -32,5 +33,6 @@ Files:
 - `src/webview/components/editor/editor-kit.tsx` — the kit, first
 - `src/webview/components/ui/spotlight.tsx` — the focused pane's; a pinned one's pick in a new pane
 - `src/webview/components/ui/find-replace.tsx` — the focused pane's
-- `src/index.css` — the room under a pane's text, kept short
+- `src/webview/components/ui/node-zoom.tsx` — node-zoom's: the bar's row, 2rem, the border under it
+- `src/index.css` — the room under a pane's text, as short as above it, a theme's too
 - `tests/unit/panes.test.ts` — ours

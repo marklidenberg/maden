@@ -32,8 +32,15 @@ type Drag = { id: string; to: number };
 
 const CORNER_BUTTON = 'h-7 w-7 bg-background/95 backdrop-blur-sm';
 
+// The pane's top row — the zoom's bar, below the page's top padding, as tall as its buttons at the
+// text zoom; the grip and the corner buttons centered on it.
+const TOP_ROW: React.CSSProperties = {
+  height: 'calc(2rem * var(--maden-text-zoom, 1))',
+  top: '0.75rem',
+};
+
 // The panes in a column, each a view of the document, as tall as its text; a pin in its top right
-// corner — more than one, a close beside it, a grip at its top left, the focused one ringed.
+// corner — more than one, a close beside it, a grip left of the pane, the focused one ringed.
 export function Panes({ children }: { children: (pane: PaneProps) => React.ReactNode }) {
   const [state, setState] = React.useState<PanesState>(initialPanes);
   const [drag, setDrag] = React.useState<Drag | null>(null);
@@ -98,7 +105,11 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
   const focus = (id: string) => setState((state) => focusPane(state, id));
 
   return (
-    <div ref={columnRef} className="flex w-full flex-col" data-maden-panes={many ? 'many' : 'one'}>
+    <div
+      ref={columnRef}
+      className={cn('flex w-full flex-col', many && 'pl-6')}
+      data-maden-panes={many ? 'many' : 'one'}
+    >
       {state.panes.map((pane, index) => {
         const focused = pane.id === state.focused;
         const pinned = !!pane.pinned;
@@ -115,18 +126,20 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
             onPointerDownCapture={() => focus(pane.id)}
           >
             {many && (
-              <button
-                type="button"
-                aria-label="Move pane"
-                title="Drag to reorder"
-                className="absolute top-2 left-1 z-20 cursor-grab touch-none rounded-sm p-0.5 text-muted-foreground/70 hover:bg-muted hover:text-foreground active:cursor-grabbing"
-                onPointerDown={onGrip(pane.id)}
-              >
-                <GripVertical className="size-3.5" />
-              </button>
+              <div className="absolute right-full z-20 flex items-center pr-1" style={TOP_ROW}>
+                <button
+                  type="button"
+                  aria-label="Move pane"
+                  title="Drag to reorder"
+                  className="cursor-grab touch-none rounded-sm p-0.5 text-muted-foreground/70 hover:bg-muted hover:text-foreground active:cursor-grabbing"
+                  onPointerDown={onGrip(pane.id)}
+                >
+                  <GripVertical className="size-3.5" />
+                </button>
+              </div>
             )}
 
-            <div className="absolute top-1 right-1 z-20 flex gap-0.5">
+            <div className="absolute right-1 z-20 flex items-center gap-0.5" style={TOP_ROW}>
               <Button
                 type="button"
                 size="icon"

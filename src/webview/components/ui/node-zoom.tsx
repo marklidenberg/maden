@@ -107,7 +107,8 @@ export function NodeZoomButton({ element, top }: { element: TElement; top: numbe
   );
 }
 
-// Above the zoom's root: back, reset, its breadcrumb — a crumb zooms in on it.
+// Above the zoom's root: back, reset, its breadcrumb — a crumb zooms in on it. Its row 2rem tall, the
+// border under it — a pane's grip and corner buttons centered on the row.
 function NodeZoomBar({ zoom }: { zoom: NodeZoom }) {
   const actions = useZoomActions();
   const crumbs = useEditorSelector(
@@ -122,7 +123,7 @@ function NodeZoomBar({ zoom }: { zoom: NodeZoom }) {
 
   return (
     <div
-      className="maden-node-zoom-bar mb-3 flex min-h-8 flex-wrap items-center gap-0.5 border-b border-border pb-1 text-muted-foreground select-none"
+      className="maden-node-zoom-bar mb-3 box-content flex min-h-8 flex-wrap items-center gap-0.5 border-b border-border pb-1 text-muted-foreground select-none"
       contentEditable={false}
       data-plate-prevent-deselect
     >

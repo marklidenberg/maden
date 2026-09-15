@@ -31,6 +31,11 @@ import { cn } from '@/lib/utils';
 import { NodeZoomButton } from '@/components/ui/node-zoom';
 
 // end-fork-add node-zoom
+// fork-add gutter-center
+
+import { lineMiddle } from '@/lib/gutter-center';
+
+// end-fork-add gutter-center
 
 const UNDRAGGABLE_KEYS = [KEYS.column, KEYS.tr, KEYS.td];
 
@@ -543,5 +548,19 @@ const calcDragButtonTop = (editor: PlateEditor, element: TElement): number => {
   const currentMarginTopString = window.getComputedStyle(child).marginTop;
   const currentMarginTop = Number(currentMarginTopString.replace('px', ''));
 
-  return currentMarginTop;
+  // fork-mutate gutter-center
+
+  // - Old
+
+  // return currentMarginTop;
+
+  // - New
+
+  // The button, 24px tall and drawn 3px down — its middle on the block's first line
+  const row = child.closest<HTMLElement>('.slate-blockWrapper');
+  const middle = row ? lineMiddle(child, row) : undefined;
+
+  return middle === undefined ? currentMarginTop : middle - 15;
+
+  // end-fork-mutate gutter-center
 };

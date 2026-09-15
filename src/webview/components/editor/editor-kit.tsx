@@ -24,7 +24,13 @@ import { EmojiKit } from '@/components/editor/plugins/emoji-kit';
 import { ExitBreakKit } from '@/components/editor/plugins/exit-break-kit';
 import { ExcalidrawKit } from '@/components/editor/plugins/excalidraw-kit';
 import { FixedToolbarKit } from '@/components/editor/plugins/fixed-toolbar-kit';
-import { FloatingToolbarKit } from '@/components/editor/plugins/floating-toolbar-kit';
+
+// fork-delete no-selection-popover
+
+// import { FloatingToolbarKit } from '@/components/editor/plugins/floating-toolbar-kit';
+
+// end-fork-delete no-selection-popover
+
 import { FontKit } from '@/components/editor/plugins/font-kit';
 import { LineHeightKit } from '@/components/editor/plugins/line-height-kit';
 import { LinkKit } from '@/components/editor/plugins/link-kit';
@@ -127,7 +133,12 @@ export const EditorKit = [
   // UI
   ...BlockPlaceholderKit,
   ...FixedToolbarKit,
-  ...FloatingToolbarKit,
+
+  // fork-delete no-selection-popover
+
+  // ...FloatingToolbarKit,
+
+  // end-fork-delete no-selection-popover
 ];
 
 export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>;

@@ -60,6 +60,10 @@ export const indentShift = (root: TElement): number =>
     ((root[KEYS.indent] as number | undefined) ?? 0) - (root[KEYS.listType] ? 1 : 0)
   );
 
+// A block's indent as the zoom shows it — its root's shift taken off.
+export const indentIn = (view: NodeZoomView | null, node: TElement): number =>
+  ((node[KEYS.indent] as number | undefined) ?? 0) - (view ? indentShift(view.root) : 0);
+
 const indexes = new WeakMap<Value, Map<unknown, number>>();
 
 const indexOf = (children: Value, id: unknown): number => {

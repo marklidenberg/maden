@@ -20,6 +20,7 @@ import {
   type NodeZoom,
   getZoom,
   getZoomView,
+  indentIn,
   indentShift,
   NodeZoomPlugin,
   placeIn,
@@ -65,15 +66,26 @@ const useZoomActions = () => {
   }, [containerRef, editor]);
 };
 
+// A block's indent as the zoom shows it — the gutter's chevron and magnifier sit by it.
+export const useZoomIndent = (element: TElement) => {
+  const zoom = getZoom(usePluginOption(NodeZoomPlugin, 'stack'));
+
+  return useEditorSelector(
+    (editor) => indentIn(getZoomView(editor.children, zoom), element),
+    [zoom, element]
+  );
+};
+
 // The gutter's magnifier, left of the grip — outside the gutter's box, which would cover what sits
 // under it: a top-level list item's fold chevron, the magnifier left of that.
 export function NodeZoomButton({ element, top }: { element: TElement; top: number }) {
   const stack = usePluginOption(NodeZoomPlugin, 'stack');
   const actions = useZoomActions();
+  const indent = useZoomIndent(element);
 
   if (getZoom(stack)?.root === element.id) return null;
 
-  const besideChevron = !!element[KEYS.listType] && element[KEYS.indent] === 1;
+  const besideChevron = !!element[KEYS.listType] && indent === 1;
 
   return (
     <div className="slate-blockToolbar pointer-events-auto relative w-0">
@@ -152,12 +164,30 @@ function NodeZoomBar({ zoom }: { zoom: NodeZoom }) {
   );
 }
 
-function NodeZoomBlock({ children, editor, element }: PlateElementProps) {
+function NodeZoomBlock({ children, element }: PlateElementProps) {
   const zoom = getZoom(usePluginOption(NodeZoomPlugin, 'stack'));
   const place = useEditorSelector(
     (editor) => placeIn(editor.children, zoom, element.id),
     [zoom, element.id]
   );
+
+  if (place === 'hidden') return <div style={{ display: 'none' }}>{children}</div>;
+
+  if (place === 'root' && zoom) {
+    return (
+      <>
+        <NodeZoomBar zoom={zoom} />
+        {children}
+      </>
+    );
+  }
+
+  return children;
+}
+
+// Inside the drag row: the block moved left by its root's indent — the gutter stays on the page.
+function NodeZoomShift({ children, editor }: PlateElementProps) {
+  const zoom = getZoom(usePluginOption(NodeZoomPlugin, 'stack'));
   const shift = useEditorSelector(
     (editor) => {
       const view = getZoomView(editor.children, zoom);
@@ -167,28 +197,23 @@ function NodeZoomBlock({ children, editor, element }: PlateElementProps) {
     [zoom]
   );
 
-  if (place === 'hidden') return <div style={{ display: 'none' }}>{children}</div>;
-
   const offset = shift * ((editor.getOption({ key: KEYS.indent }, 'offset') as number) ?? 24);
-  const shifted = offset ? <div style={{ marginLeft: -offset }}>{children}</div> : children;
 
-  if (place === 'root' && zoom) {
-    return (
-      <>
-        <NodeZoomBar zoom={zoom} />
-        {shifted}
-      </>
-    );
-  }
-
-  return shifted;
+  return offset ? <div style={{ marginLeft: -offset }}>{children}</div> : children;
 }
 
-// A top-level block — hidden outside the zoom, shifted inside it, the bar above its root.
+// A top-level block — hidden outside the zoom, the bar above its root.
 export const NodeZoomAboveNodes: RenderNodeWrapper = ({ path }) => {
   if (path.length !== 1) return;
 
   return (props) => <NodeZoomBlock {...props} />;
+};
+
+// A top-level block, shifted inside the zoom.
+export const NodeZoomShiftAboveNodes: RenderNodeWrapper = ({ path }) => {
+  if (path.length !== 1) return;
+
+  return (props) => <NodeZoomShift {...props} />;
 };
 
 // end-fork-add node-zoom

@@ -53,7 +53,7 @@ import { FoldKit } from '@/components/editor/plugins/fold-kit';
 
 // fork-add node-zoom
 
-import { NodeZoomKit } from '@/components/editor/plugins/node-zoom-kit';
+import { NodeZoomKit, NodeZoomShiftKit } from '@/components/editor/plugins/node-zoom-kit';
 
 // end-fork-add node-zoom
 
@@ -113,6 +113,14 @@ export const EditorKit = [
   ...AutoformatKit,
   ...CursorOverlayKit,
   ...BlockMenuKit,
+
+  // fork-add node-zoom
+
+  // Before `DndKit` — wrapped inside its drag row, so a zoom moves the block and not its gutter.
+  ...NodeZoomShiftKit,
+
+  // end-fork-add node-zoom
+
   ...DndKit,
 
   // fork-add fold-chevrons

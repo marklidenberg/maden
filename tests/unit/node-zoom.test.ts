@@ -10,6 +10,7 @@ import {
   getZoom,
   getZoomView,
   holdsUpTo,
+  indentIn,
   NodeZoomPlugin,
   placeIn,
   settleZoomStack,
@@ -146,6 +147,18 @@ describe('node zoom', () => {
     expect(settleZoomStack(editor.children, settled).map(({ root }) => root)).toEqual([
       idOf(editor, 'A'),
     ]);
+  });
+
+  it('indents a block as the zoom shows it', () => {
+    const editor = createEditor();
+    const node = (text: string) => editor.children.find((n) => NodeApi.string(n) === text)!;
+    const view = () =>
+      getZoomView(editor.children, getZoom(editor.getOption(NodeZoomPlugin, 'stack')));
+
+    expect(indentIn(view(), node('three'))).toBe(3);
+
+    zoomIn(editor, idOf(editor, 'two'));
+    expect([indentIn(view(), node('two')), indentIn(view(), node('three'))]).toEqual([1, 2]);
   });
 });
 

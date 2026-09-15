@@ -69,6 +69,12 @@ import { FindReplaceKit } from '@/components/editor/plugins/find-replace-kit';
 
 // end-fork-add find-replace
 
+// fork-add spotlight
+
+import { SpotlightKit } from '@/components/editor/plugins/spotlight-kit';
+
+// end-fork-add spotlight
+
 export const EditorKit = [
   ...AIKit,
 
@@ -134,6 +140,12 @@ export const EditorKit = [
   ...FindReplaceKit,
 
   // end-fork-add find-replace
+
+  // fork-add spotlight
+
+  ...SpotlightKit,
+
+  // end-fork-add spotlight
 
   ...EmojiKit,
   ...ExitBreakKit,

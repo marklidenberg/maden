@@ -61,6 +61,11 @@ export type HostToWebviewMessage =
 
     // end-fork-add external-reload
   }
+  // fork-add spotlight
+
+  | { type: 'openSpotlight' }
+
+  // end-fork-add spotlight
   | {
     type: 'setReadonly';
     readOnly: boolean;

@@ -27,6 +27,12 @@ import { TopbarToggle } from './topbar-toggle';
 
 // end-fork-add topbar-toggle
 
+// fork-add spotlight
+
+import { SpotlightButton } from './spotlight-button';
+
+// end-fork-add spotlight
+
 export type FontMode = 'default' | 'serif' | 'mono';
 
 export type ExportActions = {
@@ -146,6 +152,12 @@ export function AppearanceMenu({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      {/* fork-add spotlight */}
+
+      <SpotlightButton />
+
+      {/* end-fork-add spotlight */}
+
       {/* fork-add topbar-toggle */}
 
       <TopbarToggle visible={topbarVisible} onToggle={onTopbarToggle} />

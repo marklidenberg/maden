@@ -6,7 +6,19 @@ import { getPluginTypes, isHotkey, KEYS } from 'platejs';
 
 import { BlockSelection } from '@/components/ui/block-selection';
 
+// fork-add block-select
+
+import { BlockSelectPlugin } from '@/lib/block-select';
+
+// end-fork-add block-select
+
 export const BlockSelectionKit = [
+  // fork-add block-select
+
+  BlockSelectPlugin,
+
+  // end-fork-add block-select
+
   BlockSelectionPlugin.configure(({ editor }) => ({
     options: {
       enableContextMenu: true,

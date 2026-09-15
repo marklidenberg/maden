@@ -18,6 +18,21 @@ import {
   pinPane,
 } from '@/lib/panes';
 import { cn } from '@/lib/utils';
+// fork-add session
+
+import { paneEditor } from '@/lib/panes';
+import {
+  applyView,
+  readSession,
+  restorePanes,
+  SESSION_SAVE_MS,
+  SESSION_TOUCH_EVENT,
+  sessionOf,
+  touchSession,
+  writeSession,
+} from '@/lib/session';
+
+// end-fork-add session
 
 export type PaneProps = {
   focused: boolean;
@@ -41,8 +56,29 @@ const TOP_ROW: React.CSSProperties = {
 
 // The panes in a column, each a view of the document, as tall as its text; a pin in its top right
 // corner — more than one, a close beside it, a grip left of the pane, the focused one ringed.
-export function Panes({ children }: { children: (pane: PaneProps) => React.ReactNode }) {
-  const [state, setState] = React.useState<PanesState>(initialPanes);
+// fork-mutate session
+
+// - Old
+
+// export function Panes({ children }: { children: (pane: PaneProps) => React.ReactNode }) {
+//   const [state, setState] = React.useState<PanesState>(initialPanes);
+
+// - New
+
+// As the session of the file at `path` left them.
+export function Panes({
+  children,
+  path,
+}: {
+  children: (pane: PaneProps) => React.ReactNode;
+  path?: string;
+}) {
+  const [restored] = React.useState(() =>
+    restorePanes(path === undefined ? null : readSession(path))
+  );
+  const [state, setState] = React.useState<PanesState>(restored.state);
+
+  // end-fork-mutate session
   const [drag, setDrag] = React.useState<Drag | null>(null);
   const columnRef = React.useRef<HTMLDivElement>(null);
   const many = state.panes.length > 1;
@@ -57,6 +93,58 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
 
     return () => window.removeEventListener(PANE_ADD_EVENT, add);
   }, []);
+
+  // fork-add session
+
+  // - Each pane's view put back — its editor holds the document by now, its effects run first
+
+  React.useEffect(() => {
+    restored.views.forEach((view, id) => {
+      const editor = paneEditor(id);
+
+      if (editor) applyView(editor, view);
+    });
+  }, [restored]);
+
+  // - Saved a moment after the last move — a pane's or a view's; at once as the page goes
+
+  const stateRef = React.useRef(state);
+
+  stateRef.current = state;
+
+  React.useEffect(() => {
+    if (path === undefined) return;
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const save = () => {
+      clearTimeout(timer);
+      timer = undefined;
+
+      const session = sessionOf(stateRef.current, paneEditor);
+
+      if (session) writeSession(path, session);
+    };
+
+    const touch = () => {
+      clearTimeout(timer);
+      timer = setTimeout(save, SESSION_SAVE_MS);
+    };
+
+    window.addEventListener(SESSION_TOUCH_EVENT, touch);
+    window.addEventListener('pagehide', save);
+
+    return () => {
+      window.removeEventListener(SESSION_TOUCH_EVENT, touch);
+      window.removeEventListener('pagehide', save);
+
+      if (timer !== undefined) save();
+    };
+  }, [path]);
+
+  React.useEffect(touchSession, [state]);
+
+  // end-fork-add session
 
   // - A grip held: a line between panes follows the pointer; let go — the pane moved there
 

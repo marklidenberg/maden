@@ -6,11 +6,6 @@ import { MadenMarkdownEditorProvider } from './MadenMarkdownEditorProvider';
 import { registerSpotlight } from './services/spotlight';
 
 // end-fork-add spotlight
-// fork-add keep-tabs
-
-import { registerKeepTabs } from './services/keep-tabs';
-
-// end-fork-add keep-tabs
 
 export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(MadenMarkdownEditorProvider.register(context));
@@ -19,11 +14,6 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(registerSpotlight());
 
   // end-fork-add spotlight
-  // fork-add keep-tabs
-
-  context.subscriptions.push(registerKeepTabs(MadenMarkdownEditorProvider.viewType));
-
-  // end-fork-add keep-tabs
 }
 
 export function deactivate(): void {

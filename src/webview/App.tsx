@@ -564,7 +564,13 @@ export function App() {
 
         {/* - New */}
 
-        <Panes>
+        <Panes
+          // fork-add session
+
+          path={documentState.filePath}
+
+          // end-fork-add session
+        >
           {(pane) => (
             <ErrorBoundary label="Markdown editor">
               <MarkdownEditor

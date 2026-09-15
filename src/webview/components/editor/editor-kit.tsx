@@ -51,6 +51,12 @@ import { NodeZoomKit } from '@/components/editor/plugins/node-zoom-kit';
 
 // end-fork-add node-zoom
 
+// fork-add find-replace
+
+import { FindReplaceKit } from '@/components/editor/plugins/find-replace-kit';
+
+// end-fork-add find-replace
+
 export const EditorKit = [
   ...AIKit,
 
@@ -103,6 +109,12 @@ export const EditorKit = [
   ...NodeZoomKit,
 
   // end-fork-add node-zoom
+
+  // fork-add find-replace
+
+  ...FindReplaceKit,
+
+  // end-fork-add find-replace
 
   ...EmojiKit,
   ...ExitBreakKit,

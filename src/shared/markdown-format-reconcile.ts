@@ -1,3 +1,9 @@
+// fork-add keep-indent
+
+import { keepFileIndent } from './keep-indent';
+
+// end-fork-add keep-indent
+
 const normalizeLineEndings = (value: string): string => value.replace(/\r\n/g, '\n');
 
 const ZERO_WIDTH_PATTERN = /[\u200B-\u200D\uFEFF]/g;
@@ -347,6 +353,12 @@ export function reconcileMarkdownPreservingUnchangedFormatting(
   }
 
   operations.reverse();
+
+  // fork-add keep-indent
+
+  keepFileIndent(operations, previousLines, nextLines);
+
+  // end-fork-add keep-indent
 
   const mergedLines: string[] = [];
 

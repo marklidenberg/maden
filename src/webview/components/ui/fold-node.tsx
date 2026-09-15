@@ -5,7 +5,6 @@
 import * as React from 'react';
 
 import { ChevronRightIcon } from 'lucide-react';
-import { KEYS } from 'platejs';
 import {
   type PlateElementProps,
   atom,
@@ -15,6 +14,7 @@ import {
   useStoreAtomValue,
 } from 'platejs/react';
 
+import { useZoomIndent } from '@/components/ui/node-zoom';
 import { buildFoldIndex, FoldPlugin } from '@/lib/fold';
 import { cn } from '@/lib/utils';
 
@@ -50,10 +50,11 @@ export function FoldHidden({ children, element }: PlateElementProps) {
 }
 
 // Left of the marker, on hover of the drag row; while folded, always. A top-level item's marker
-// sits beside the drag handle — its chevron goes left of the handle.
+// sits beside the drag handle — its chevron goes left of the handle; in a zoom, by the indent it shows.
 export function FoldChevron({ children, editor, element }: PlateElementProps) {
   const id = element.id as string;
   const folded = usePluginOption(FoldPlugin, 'foldedIds').has(id);
+  const indent = useZoomIndent(element);
   const parent = useStoreAtomValue(
     usePlateStore(),
     React.useMemo(
@@ -68,7 +69,7 @@ export function FoldChevron({ children, editor, element }: PlateElementProps) {
         <button
           className={cn(
             'absolute top-1 flex size-5 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:bg-accent [&_svg]:size-4',
-            element[KEYS.indent] === 1 ? '-left-[70px]' : '-left-12',
+            indent === 1 ? '-left-[70px]' : '-left-12',
             !folded && 'opacity-0 group-hover:opacity-100'
           )}
           contentEditable={false}

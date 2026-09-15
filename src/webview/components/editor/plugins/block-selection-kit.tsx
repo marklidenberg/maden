@@ -12,6 +12,12 @@ import { BlockSelectPlugin } from '@/lib/block-select';
 
 // end-fork-add block-select
 
+// fork-add block-indent
+
+import { indentSelected } from '@/lib/block-indent';
+
+// end-fork-add block-indent
+
 export const BlockSelectionKit = [
   // fork-add block-select
 
@@ -27,6 +33,12 @@ export const BlockSelectionKit = [
           element.type
         ),
       onKeyDownSelecting: (editor, e) => {
+        // fork-add block-indent
+
+        indentSelected(editor, e);
+
+        // end-fork-add block-indent
+
         const aiEnabled = window.__MADEN_AI_ENABLED__ === true;
 
         if (aiEnabled && isHotkey('mod+j')(e)) {

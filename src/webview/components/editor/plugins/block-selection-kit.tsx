@@ -18,12 +18,24 @@ import { indentSelected } from '@/lib/block-indent';
 
 // end-fork-add block-indent
 
+// fork-add block-paste
+
+import { BlockPastePlugin } from '@/lib/block-paste';
+
+// end-fork-add block-paste
+
 export const BlockSelectionKit = [
   // fork-add block-select
 
   BlockSelectPlugin,
 
   // end-fork-add block-select
+
+  // fork-add block-paste
+
+  BlockPastePlugin,
+
+  // end-fork-add block-paste
 
   BlockSelectionPlugin.configure(({ editor }) => ({
     options: {

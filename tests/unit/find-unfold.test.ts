@@ -42,16 +42,24 @@ describe('find unfold', () => {
     const editor = createEditor();
 
     setFindQuery(editor, { open: true, search: 'x' });
-    expect(folded(editor)).toEqual(['b', 'e']);
+    expect(folded(editor)).toEqual(['a', 'b', 'e']);
+
+    findStep(editor, -1);
+    expect(folded(editor)).toEqual(['a', 'b']);
 
     findStep(editor, 1);
-    expect(folded(editor)).toEqual(['e']);
-
-    findStep(editor, 1);
-    expect(folded(editor)).toEqual(['e']);
+    expect(folded(editor)).toEqual(['b']);
 
     findStep(editor, 1);
     expect(folded(editor)).toEqual([]);
+  });
+
+  it('leaves the folds while typing', () => {
+    const editor = createEditor();
+
+    setFindQuery(editor, { open: true, search: 'x' });
+    setFindQuery(editor, { search: 'c x' });
+    expect(folded(editor)).toEqual(['a', 'b', 'e']);
   });
 
   it('leaves the folds while closed', () => {

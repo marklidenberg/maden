@@ -170,7 +170,7 @@ const currentMatch = (editor: PlateEditor) => {
   return matches[currentIndex(editor.getOption(FindReplacePlugin, 'current'), matches.length)];
 };
 
-// The current match inside folded children — they unfold, as VS Code's.
+// The current match inside folded children — they unfold, on a step alone: typing matches everywhere.
 const unfoldCurrent = (editor: PlateEditor) => {
   const match = currentMatch(editor);
 
@@ -310,7 +310,6 @@ export const setFindQuery = (editor: PlateEditor, patch: Partial<FindOptions>) =
     'current',
     indexFrom(getFindMatches(editor).matches, editor.getOption(FindReplacePlugin, 'origin'))
   );
-  unfoldCurrent(editor);
   editor.api.redecorate();
 };
 

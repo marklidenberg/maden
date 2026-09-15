@@ -10,6 +10,9 @@ opened. Upstream has no search over bullets.
 A bullet is a top-level list item with text, its breadcrumb the zoom's. Recents are kept per file
 in the webview's local storage, by text — by id while the editor lives.
 
+The overlay is a plain `div`, not Radix's: its scroll lock sets the body's padding to its margin —
+VS Code's `padding: 0 20px` gone, the page shifted. The editor scrolls in its own container.
+
 Files:
 
 - `src/webview/lib/spotlight.ts` — ours: bullets, fuzzy match, recents, plugin, jump

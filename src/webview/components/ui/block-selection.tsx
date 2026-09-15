@@ -7,6 +7,12 @@ import { useBlockSelected } from '@platejs/selection/react';
 import { cva } from 'class-variance-authority';
 import { type PlateElementProps, usePluginOption } from 'platejs/react';
 
+// fork-add block-select
+
+import { BlockSelectGroup } from '@/components/ui/block-select';
+
+// end-fork-add block-select
+
 export const blockSelectionVariants = cva(
   'pointer-events-none absolute inset-0 z-[1] bg-brand/[.13] transition-opacity',
   {
@@ -32,6 +38,20 @@ export function BlockSelection(props: PlateElementProps) {
     props.plugin.key === 'table'
   )
     return null;
+
+  // fork-add block-select
+
+  // A top-level block — one highlight with its children
+  if (props.path.length === 1) {
+    return (
+      <BlockSelectGroup
+        className={blockSelectionVariants({ active: isBlockSelected && !isDragging })}
+        element={props.element}
+      />
+    );
+  }
+
+  // end-fork-add block-select
 
   return (
     <div

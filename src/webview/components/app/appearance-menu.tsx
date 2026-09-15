@@ -36,6 +36,7 @@ import { SpotlightButton } from './spotlight-button';
 // fork-add panes
 
 import { PaneAddButton } from './pane-add-button';
+import { PanePinButton } from './pane-pin-button';
 
 // end-fork-add panes
 
@@ -190,6 +191,7 @@ export function AppearanceMenu({
       {/* fork-add panes */}
 
       <PaneAddButton />
+      <PanePinButton />
 
       {/* end-fork-add panes */}
     </div>

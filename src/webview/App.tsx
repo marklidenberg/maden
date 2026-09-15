@@ -129,9 +129,12 @@ function MarkdownEditor({
 
   paneRef.current = pane;
 
-  // - Among the panes — the document from one, the view from the pane split
+  // - Among the panes — the document from one, the view from the pane split, zoomed in on its jump
 
-  React.useEffect(() => registerPane(pane.id, editor, pane.from), [editor, pane.id, pane.from]);
+  React.useEffect(
+    () => registerPane(pane.id, editor, pane.from, pane.jump),
+    [editor, pane.id, pane.from, pane.jump]
+  );
 
   // - Focused — the singletons act on it, the caret in it; not — its find closed
 
@@ -141,6 +144,12 @@ function MarkdownEditor({
     if (!pane.focused) closeFind(editor);
     else if (!editor.api.isFocused()) editor.tf.focus();
   }, [editor, pane.focused]);
+
+  // - Pinned — the spotlight opens another bullet in a new pane
+
+  React.useEffect(() => {
+    editor.setOption(PanePlugin, 'pinned', pane.pinned);
+  }, [editor, pane.pinned]);
 
   // end-fork-add panes
   // fork-delete panes

@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 
-import { GripHorizontal, X } from 'lucide-react';
+import { GripHorizontal, PinIcon, X } from 'lucide-react';
 
 import {
   type PanesState,
@@ -14,30 +14,52 @@ import {
   initialPanes,
   movePane,
   PANE_ADD_EVENT,
+  PANE_PIN_EVENT,
+  pinPane,
+  setFocusedPinned,
 } from '@/lib/panes';
 import { cn } from '@/lib/utils';
 
-export type PaneProps = { focused: boolean; from?: string; id: string; primary: boolean };
+export type PaneProps = {
+  focused: boolean;
+  from?: string;
+  id: string;
+  jump?: string;
+  pinned: boolean;
+  primary: boolean;
+};
 
 type Drag = { id: string; to: number };
 
-// The panes in a column, each a view of the document; more than one — a strip over each, a grip
-// and a close in it, the focused one ringed.
+// The panes in a column, each a view of the document; more than one — a strip over each, a grip,
+// a pin and a close in it, the focused one ringed.
 export function Panes({ children }: { children: (pane: PaneProps) => React.ReactNode }) {
   const [state, setState] = React.useState<PanesState>(initialPanes);
   const [drag, setDrag] = React.useState<Drag | null>(null);
   const columnRef = React.useRef<HTMLDivElement>(null);
   const many = state.panes.length > 1;
 
-  // - The plus — a pane under the focused one
+  // - The plus — a pane under the focused one, zoomed in on a jump; the pin — the focused one's
 
   React.useEffect(() => {
-    const add = () => setState(addPane);
+    const add = (event: Event) =>
+      setState((state) => addPane(state, (event as CustomEvent<string | undefined>).detail));
+    const pin = () => setState((state) => pinPane(state));
 
     window.addEventListener(PANE_ADD_EVENT, add);
+    window.addEventListener(PANE_PIN_EVENT, pin);
 
-    return () => window.removeEventListener(PANE_ADD_EVENT, add);
+    return () => {
+      window.removeEventListener(PANE_ADD_EVENT, add);
+      window.removeEventListener(PANE_PIN_EVENT, pin);
+    };
   }, []);
+
+  // - The column's pin lit for the focused pane
+
+  React.useEffect(() => {
+    setFocusedPinned(!!state.panes.find((pane) => pane.id === state.focused)?.pinned);
+  }, [state]);
 
   // - A grip held: a line between panes follows the pointer; let go — the pane moved there
 
@@ -93,6 +115,7 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
     >
       {state.panes.map((pane, index) => {
         const focused = pane.id === state.focused;
+        const pinned = !!pane.pinned;
         const last = index === state.panes.length - 1;
         const line = drag && (drag.to === index ? 'top-0' : last && drag.to > index ? 'bottom-0' : null);
 
@@ -119,6 +142,20 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
                 <span className="flex-1" />
                 <button
                   type="button"
+                  aria-label={pinned ? 'Unpin pane' : 'Pin pane'}
+                  aria-pressed={pinned}
+                  title={pinned ? 'Unpin pane' : 'Pin pane'}
+                  className={cn(
+                    'rounded-sm p-0.5 hover:bg-muted hover:text-foreground',
+                    pinned && 'text-foreground'
+                  )}
+                  onClick={() => setState((state) => pinPane(state, pane.id))}
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  <PinIcon className={cn('size-4', pinned && 'fill-current')} />
+                </button>
+                <button
+                  type="button"
                   aria-label="Close pane"
                   title="Close pane"
                   className="rounded-sm p-0.5 hover:bg-muted hover:text-foreground"
@@ -131,7 +168,14 @@ export function Panes({ children }: { children: (pane: PaneProps) => React.React
             )}
 
             <div className="relative min-h-0 flex-1">
-              {children({ focused, from: pane.from, id: pane.id, primary: index === 0 })}
+              {children({
+                focused,
+                from: pane.from,
+                id: pane.id,
+                jump: pane.jump,
+                pinned,
+                primary: index === 0,
+              })}
 
               {many && focused && (
                 <div

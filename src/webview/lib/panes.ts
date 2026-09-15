@@ -7,10 +7,12 @@ import { createPlatePlugin } from 'platejs/react';
 
 import { FoldPlugin } from '@/lib/fold';
 import { keepSelection } from '@/lib/keep-selection';
-import { NodeZoomPlugin } from '@/lib/node-zoom';
+import { getZoom, NodeZoomPlugin } from '@/lib/node-zoom';
+import { spotlightJump } from '@/lib/spotlight';
 
-// A pane: a view of the one document — an editor of its own, with its zoom and its folds.
-export type Pane = { from?: string; id: string };
+// A pane: a view of the one document — an editor of its own, with its zoom and its folds; `jump` —
+// the bullet it opens zoomed in on.
+export type Pane = { from?: string; id: string; jump?: string; pinned?: boolean };
 
 export type PanesState = { focused: string; panes: Pane[] };
 
@@ -25,13 +27,17 @@ export const initialPanes = (): PanesState => {
 };
 
 // A pane under the focused one, split off it — focused.
-export const addPane = (state: PanesState): PanesState => {
+export const addPane = (state: PanesState, jump?: string): PanesState => {
   const id = newId();
   const at = state.panes.findIndex((pane) => pane.id === state.focused) + 1;
 
   return {
     focused: id,
-    panes: [...state.panes.slice(0, at), { from: state.focused, id }, ...state.panes.slice(at)],
+    panes: [
+      ...state.panes.slice(0, at),
+      { from: state.focused, id, jump },
+      ...state.panes.slice(at),
+    ],
   };
 };
 
@@ -65,10 +71,45 @@ export const focusPane = (state: PanesState, id: string): PanesState =>
     ? state
     : { ...state, focused: id };
 
-// The plus's press.
+// Pinned, or not — the focused pane where none named.
+export const pinPane = (state: PanesState, id = state.focused): PanesState => ({
+  ...state,
+  panes: state.panes.map((pane) => (pane.id === id ? { ...pane, pinned: !pane.pinned } : pane)),
+});
+
+// The plus's press; a spotlight's pick in a pinned pane — zoomed in on it.
 export const PANE_ADD_EVENT = 'maden:pane-add';
 
-export const splitPane = () => window.dispatchEvent(new Event(PANE_ADD_EVENT));
+export const splitPane = (jump?: string) =>
+  window.dispatchEvent(new CustomEvent(PANE_ADD_EVENT, { detail: jump }));
+
+// The pin's press.
+export const PANE_PIN_EVENT = 'maden:pane-pin';
+
+export const togglePin = () => window.dispatchEvent(new Event(PANE_PIN_EVENT));
+
+// - The focused pane's pin — the column's toggle lit
+
+let focusedPinned = false;
+
+const pinListeners = new Set<() => void>();
+
+export const getFocusedPinned = () => focusedPinned;
+
+export const setFocusedPinned = (pinned: boolean) => {
+  if (pinned === focusedPinned) return;
+
+  focusedPinned = pinned;
+  pinListeners.forEach((listener) => listener());
+};
+
+export const subscribeFocusedPinned = (listener: () => void) => {
+  pinListeners.add(listener);
+
+  return () => {
+    pinListeners.delete(listener);
+  };
+};
 
 // - One document across the panes
 
@@ -126,7 +167,7 @@ export const forwardChange = (editor: SlateEditor) => {
 
 export const PanePlugin = createPlatePlugin({
   key: 'pane',
-  options: { focused: true },
+  options: { focused: true, pinned: false },
   handlers: {
     onChange: ({ editor }) => {
       forwardChange(editor);
@@ -137,8 +178,14 @@ export const PanePlugin = createPlatePlugin({
 // The singletons — the magnifier, the find, the rail — act on the focused pane alone.
 export const isPaneFocused = (editor: SlateEditor) => editor.getOption(PanePlugin, 'focused');
 
-// Among the others: the document from any, the history theirs; the view from the pane split.
-export const registerPane = (id: string, editor: SlateEditor, from?: string) => {
+// A pinned pane keeps its zoom: a bullet other than its root opens in a new pane.
+export const opensPane = (editor: SlateEditor, id: string) =>
+  editor.getOption(PanePlugin, 'pinned') &&
+  getZoom(editor.getOption(NodeZoomPlugin, 'stack'))?.root !== id;
+
+// Among the others: the document from any, the history theirs; the view from the pane split, zoomed
+// in on `jump`.
+export const registerPane = (id: string, editor: SlateEditor, from?: string, jump?: string) => {
   const source = [...editors.values()].find((other) => other !== editor);
   const split = from === undefined ? undefined : editors.get(from);
 
@@ -153,6 +200,8 @@ export const registerPane = (id: string, editor: SlateEditor, from?: string) => 
 
     if (split.selection) editor.tf.select(split.selection);
   }
+
+  if (jump) spotlightJump(editor, jump);
 
   editors.set(id, editor);
 

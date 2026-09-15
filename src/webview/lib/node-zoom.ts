@@ -179,17 +179,11 @@ export const NodeZoomPlugin = createPlatePlugin({
       },
     },
     transforms: {
-      // A block first, as upstream; then the zoom's text; then its blocks
+      // The zoom's text, then its blocks — within one block, select-block's first
       selectAll: () => {
         const view = viewOf();
 
         if (!view) return selectAll();
-        if (
-          editor.api.isAt({ block: true }) &&
-          !editor.api.isAt({ block: true, end: true, start: true })
-        ) {
-          return selectAll();
-        }
 
         const range = {
           anchor: editor.api.start([view.start])!,

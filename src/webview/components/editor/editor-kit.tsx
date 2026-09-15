@@ -57,6 +57,12 @@ import { NodeZoomKit } from '@/components/editor/plugins/node-zoom-kit';
 
 // end-fork-add node-zoom
 
+// fork-add select-block
+
+import { SelectBlockPlugin } from '@/lib/select-block';
+
+// end-fork-add select-block
+
 // fork-add find-replace
 
 import { FindReplaceKit } from '@/components/editor/plugins/find-replace-kit';
@@ -115,6 +121,13 @@ export const EditorKit = [
   ...NodeZoomKit,
 
   // end-fork-add node-zoom
+
+  // fork-add select-block
+
+  // After `NodeZoomKit` — wrapped outside its select all, so a caret in one block stays in it.
+  SelectBlockPlugin,
+
+  // end-fork-add select-block
 
   // fork-add find-replace
 

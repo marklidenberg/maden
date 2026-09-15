@@ -4,16 +4,24 @@ import { describe, expect, it } from 'vitest';
 
 import { createPlateEditor } from 'platejs/react';
 
-import { markExternal, readExternalText } from '../../src/extension/services/external-reload';
+import {
+  createFileWriter,
+  markExternal,
+  readExternalText,
+  withRevision,
+} from '../../src/extension/services/external-reload';
 import { keepSelection } from '../../src/webview/lib/keep-selection';
 
 const paragraph = (text: string) => ({ children: [{ text }], type: 'p' });
+
+const unseen = () => undefined;
 
 describe('readExternalText', () => {
   it('takes a text other than the one held', async () => {
     const text = await readExternalText({
       held: () => 'mine',
       read: async () => 'theirs',
+      seen: unseen,
       writes: () => 0,
       writing: () => false,
     });
@@ -25,6 +33,7 @@ describe('readExternalText', () => {
     const text = await readExternalText({
       held: () => 'mine',
       read: async () => 'mine',
+      seen: unseen,
       writes: () => 0,
       writing: () => false,
     });
@@ -40,6 +49,7 @@ describe('readExternalText', () => {
         reads += 1;
         return 'stale';
       },
+      seen: unseen,
       writes: () => 0,
       writing: () => true,
     });
@@ -58,6 +68,7 @@ describe('readExternalText', () => {
         writes += 1;
         return 'first-on-disk-before';
       },
+      seen: unseen,
       writes: () => writes,
       writing: () => false,
     });
@@ -73,11 +84,108 @@ describe('readExternalText', () => {
         writing = true;
         return 'stale';
       },
+      seen: unseen,
       writes: () => 0,
       writing: () => writing,
     });
 
     expect(text).toBeUndefined();
+  });
+
+  it('marks the file seen on a read no host write overlapped', async () => {
+    const seen: string[] = [];
+    const read = async () => 'mine';
+
+    await readExternalText({ held: () => 'mine', read, seen: (text) => seen.push(text), writes: () => 0, writing: () => false });
+    await readExternalText({ held: () => 'mine', read, seen: (text) => seen.push(text), writes: () => 0, writing: () => true });
+
+    expect(seen).toEqual(['mine']);
+  });
+});
+
+describe('createFileWriter', () => {
+  const fileOf = (text: string | undefined) => {
+    const file = { text, writes: 0 };
+    const writer = createFileWriter({
+      read: async () => file.text,
+      write: async (next) => {
+        await Promise.resolve();
+        file.text = next;
+        file.writes += 1;
+      },
+    });
+
+    return { file, writer };
+  };
+
+  it('writes no old copy over a change from outside the event of which a host write skipped', async () => {
+    const before = '- [ ] a\n- [ ] vscode-settings-sync\n';
+    const after = '- [ ] a\n';
+    const { file, writer } = fileOf(before);
+    writer.seen(before);
+
+    // - Outside: the node removed
+
+    file.text = after;
+
+    // - The webview's pending write, built on the text before, flushes
+
+    let writing = 1;
+    const write = writer.write(before);
+
+    // - The watcher's event comes during it — skipped
+
+    const external = await readExternalText({
+      held: () => before,
+      read: async () => file.text ?? '',
+      seen: writer.seen,
+      writes: () => 0,
+      writing: () => writing > 0,
+    });
+
+    const moved = await write;
+    writing -= 1;
+
+    expect(external).toBeUndefined();
+    expect(moved).toBe(after);
+    expect(file.text).toBe(after);
+  });
+
+  it('writes over the text last seen', async () => {
+    const { file, writer } = fileOf('mine');
+    writer.seen('mine');
+
+    expect(await writer.write('mine, edited')).toBeUndefined();
+    expect(file.text).toBe('mine, edited');
+  });
+
+  it('writes nothing where the text is there already', async () => {
+    const { file, writer } = fileOf('theirs');
+    writer.seen('mine');
+
+    expect(await writer.write('theirs')).toBeUndefined();
+    expect(file.writes).toBe(0);
+  });
+
+  it('takes its own writes in turn, none read as a change from outside', async () => {
+    const { file, writer } = fileOf('mine');
+    writer.seen('mine');
+
+    const moved = await Promise.all([writer.write('mine 1'), writer.write('mine 2')]);
+
+    expect(moved).toEqual([undefined, undefined]);
+    expect(file.text).toBe('mine 2');
+  });
+
+  it('writes a file gone, or one never seen, anew', async () => {
+    const gone = fileOf(undefined);
+    gone.writer.seen('mine');
+
+    const never = fileOf('theirs');
+
+    expect(await gone.writer.write('mine')).toBeUndefined();
+    expect(await never.writer.write('mine')).toBeUndefined();
+    expect([gone.file.text, never.file.text]).toEqual(['mine', 'mine']);
   });
 });
 
@@ -95,6 +203,31 @@ describe('markExternal', () => {
 
     expect(markExternal(update)).toEqual({ ...update, external: true });
     expect(markExternal({ readOnly: true, type: 'setReadonly' })).toEqual({
+      readOnly: true,
+      type: 'setReadonly',
+    });
+  });
+});
+
+describe('withRevision', () => {
+  it('gives the revision to a document text alone', () => {
+    const init = {
+      aiEnabled: false,
+      fileName: 'note',
+      filePath: '/note.md',
+      markdown: '# note',
+      readOnly: false,
+      type: 'initDocument' as const,
+      workspacePaths: [],
+    };
+
+    expect(withRevision(init, 2)).toEqual({ ...init, revision: 2 });
+    expect(withRevision({ ...init, type: 'externalDocumentUpdated' }, 3)).toEqual({
+      ...init,
+      revision: 3,
+      type: 'externalDocumentUpdated',
+    });
+    expect(withRevision({ readOnly: true, type: 'setReadonly' }, 2)).toEqual({
       readOnly: true,
       type: 'setReadonly',
     });

@@ -29,7 +29,13 @@ import { openLink } from './services/link-open';
 // end-fork-add link-open
 // fork-add external-reload
 
-import { markExternal, readExternalText } from './services/external-reload';
+import {
+  createFileWriter,
+  type FileWriter,
+  markExternal,
+  readExternalText,
+  withRevision,
+} from './services/external-reload';
 
 // end-fork-add external-reload
 // fork-add spotlight
@@ -71,6 +77,12 @@ export class MadenMarkdownEditorProvider
   // fork-add external-reload
 
   private readonly hostWritesByDocument = new Map<string, number>();
+  private readonly writersByDocument = new Map<string, FileWriter>();
+  private readonly revisionByDocument = new Map<string, number>(); // changes from outside taken
+  private readonly takeExternalByPanel = new WeakMap<
+    vscode.WebviewPanel,
+    (text: string, source: string) => void
+  >();
 
   // end-fork-add external-reload
 
@@ -167,6 +179,31 @@ export class MadenMarkdownEditorProvider
 
     this.documentText.set(session.key, session.markdown);
     this.documentFilePath.set(session.key, session.filePath);
+    // fork-add external-reload
+
+    const writer = createFileWriter({
+      read: async () => {
+        try {
+          const bytes = await vscode.workspace.fs.readFile(uri);
+          return Buffer.from(bytes).toString('utf8').replace(/\r\n/g, '\n');
+        } catch {
+          return undefined;
+        }
+      },
+      write: async (text) => {
+        await vscode.workspace.fs.writeFile(uri, Buffer.from(text, 'utf8'));
+      },
+    });
+
+    // - The file as read — a backup is not what it holds
+
+    if (!openContext.backupId) {
+      writer.seen(content);
+    }
+
+    this.writersByDocument.set(key, writer);
+
+    // end-fork-add external-reload
 
     return {
       uri,
@@ -179,6 +216,12 @@ export class MadenMarkdownEditorProvider
         this.documentFilePath.delete(key);
         this.clearRuntimeTimer(key);
         this.runtimeByDocument.delete(key);
+        // fork-add external-reload
+
+        this.writersByDocument.delete(key);
+        this.revisionByDocument.delete(key);
+
+        // end-fork-add external-reload
       },
     };
   }
@@ -271,15 +314,35 @@ export class MadenMarkdownEditorProvider
         const markdown =
           this.documentText.get(key) ?? enforceTitleHeading('', filePathOverride ?? document.uri.fsPath);
 
-        return createStateMessage({
-          type,
-          markdown,
-          fileName: getFileNameWithoutExtension(filePath),
-          filePath,
-          workspacePaths: getWorkspacePaths(),
-          readOnly: isReadOnly(),
-          aiEnabled: getAiEnabled(),
-        });
+        // fork-delete external-reload
+
+        // return createStateMessage({
+        //   type,
+        //   markdown,
+        //   fileName: getFileNameWithoutExtension(filePath),
+        //   filePath,
+        //   workspacePaths: getWorkspacePaths(),
+        //   readOnly: isReadOnly(),
+        //   aiEnabled: getAiEnabled(),
+        // });
+
+        // end-fork-delete external-reload
+        // fork-add external-reload
+
+        return withRevision(
+          createStateMessage({
+            type,
+            markdown,
+            fileName: getFileNameWithoutExtension(filePath),
+            filePath,
+            workspacePaths: getWorkspacePaths(),
+            readOnly: isReadOnly(),
+            aiEnabled: getAiEnabled(),
+          }),
+          this.revisionByDocument.get(key) ?? 0
+        );
+
+        // end-fork-add external-reload
       };
 
       const postOrQueue = (message: HostToWebviewMessage) => {
@@ -372,6 +435,10 @@ export class MadenMarkdownEditorProvider
       const takeExternal = (text: string, source: string) => {
         this.documentText.set(key, text);
 
+        // - A webview write built on the text before it — dropped
+
+        this.revisionByDocument.set(key, (this.revisionByDocument.get(key) ?? 0) + 1);
+
         // - Outside wins over the webview's pending write
 
         runtime.pendingMarkdownFromWebview = undefined;
@@ -387,11 +454,14 @@ export class MadenMarkdownEditorProvider
         );
       };
 
+      this.takeExternalByPanel.set(webviewPanel, takeExternal);
+
       const reloadFromDisk = async () => {
         const text = await readExternalText({
           held: () => this.documentText.get(key),
           read: async () =>
             enforceTitleHeading(await this.readFileSafe(document.uri), currentFilePath()),
+          seen: (seenText) => this.writersByDocument.get(key)?.seen(seenText),
           writes: () => this.hostWritesByDocument.get(key) ?? 0,
           writing: () => runtime.applyingHostWrite > 0,
         });
@@ -467,6 +537,20 @@ export class MadenMarkdownEditorProvider
           }
 
           if (message.type === 'documentChanged') {
+            // fork-add external-reload
+
+            // - Built on a text older than one from outside — dropped, the panel told again
+
+            if (
+              message.revision !== undefined &&
+              message.revision < (this.revisionByDocument.get(key) ?? 0)
+            ) {
+              log(`Stale webview write dropped. revision=${message.revision}`);
+              postOrQueue(markExternal(buildStateMessage('externalDocumentUpdated')));
+              return;
+            }
+
+            // end-fork-add external-reload
             const normalized = enforceTitleHeading(
               message.markdown.replace(/\r\n/g, '\n'),
               currentFilePath()
@@ -788,15 +872,45 @@ export class MadenMarkdownEditorProvider
     const content = await this.readFileSafe(document.uri);
     const normalized = enforceTitleHeading(content, this.documentFilePath.get(key) ?? document.uri.fsPath);
     this.documentText.set(key, normalized);
-    postToDocumentPanels(this.panelsByDocument, key, {
-      type: 'externalDocumentUpdated',
-      markdown: normalized,
-      fileName: getFileNameWithoutExtension(this.documentFilePath.get(key) ?? document.uri.fsPath),
-      filePath: this.documentFilePath.get(key) ?? document.uri.fsPath,
-      workspacePaths: (vscode.workspace.workspaceFolders ?? []).map((folder) => folder.uri.fsPath),
-      readOnly: vscode.workspace.fs.isWritableFileSystem(document.uri.scheme) === false,
-      aiEnabled: (await this.aiRuntime.loadSettingsPublic()).enabled,
-    });
+    // fork-delete external-reload
+
+    // postToDocumentPanels(this.panelsByDocument, key, {
+    //   type: 'externalDocumentUpdated',
+    //   markdown: normalized,
+    //   fileName: getFileNameWithoutExtension(this.documentFilePath.get(key) ?? document.uri.fsPath),
+    //   filePath: this.documentFilePath.get(key) ?? document.uri.fsPath,
+    //   workspacePaths: (vscode.workspace.workspaceFolders ?? []).map((folder) => folder.uri.fsPath),
+    //   readOnly: vscode.workspace.fs.isWritableFileSystem(document.uri.scheme) === false,
+    //   aiEnabled: (await this.aiRuntime.loadSettingsPublic()).enabled,
+    // });
+
+    // end-fork-delete external-reload
+    // fork-add external-reload
+
+    // - The file as read, a webview write built on the text before it dropped
+
+    this.writersByDocument.get(key)?.seen(content);
+    const revision = (this.revisionByDocument.get(key) ?? 0) + 1;
+    this.revisionByDocument.set(key, revision);
+
+    postToDocumentPanels(
+      this.panelsByDocument,
+      key,
+      withRevision(
+        {
+          type: 'externalDocumentUpdated',
+          markdown: normalized,
+          fileName: getFileNameWithoutExtension(this.documentFilePath.get(key) ?? document.uri.fsPath),
+          filePath: this.documentFilePath.get(key) ?? document.uri.fsPath,
+          workspacePaths: (vscode.workspace.workspaceFolders ?? []).map((folder) => folder.uri.fsPath),
+          readOnly: vscode.workspace.fs.isWritableFileSystem(document.uri.scheme) === false,
+          aiEnabled: (await this.aiRuntime.loadSettingsPublic()).enabled,
+        },
+        revision
+      )
+    );
+
+    // end-fork-add external-reload
   }
 
   public async backupCustomDocument(
@@ -834,6 +948,23 @@ export class MadenMarkdownEditorProvider
 
     const writesKey = uri.toString();
     this.hostWritesByDocument.set(writesKey, (this.hostWritesByDocument.get(writesKey) ?? 0) + 1);
+
+    // - A change from outside not taken yet — taken instead
+
+    const writer = this.writersByDocument.get(writesKey);
+    if (writer) {
+      const moved = await writer.write(text);
+      if (moved === undefined) {
+        return;
+      }
+
+      this.documentText.set(writesKey, moved);
+      const panel = this.panelsByDocument.get(writesKey)?.values().next().value;
+      if (panel) {
+        this.takeExternalByPanel.get(panel)?.(moved, 'write');
+      }
+      return;
+    }
 
     // end-fork-add external-reload
 

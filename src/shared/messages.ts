@@ -46,6 +46,11 @@ export type HostToWebviewMessage =
     workspacePaths: string[];
     readOnly: boolean;
     aiEnabled: boolean;
+    // fork-add external-reload
+
+    revision?: number;
+
+    // end-fork-add external-reload
   }
   | {
     type: 'externalDocumentUpdated';
@@ -58,6 +63,7 @@ export type HostToWebviewMessage =
     // fork-add external-reload
 
     external?: boolean;
+    revision?: number;
 
     // end-fork-add external-reload
   }
@@ -100,6 +106,11 @@ export type WebviewToHostMessage =
   | {
     type: 'documentChanged';
     markdown: string;
+    // fork-add external-reload
+
+    revision?: number;
+
+    // end-fork-add external-reload
   }
   | {
     type: 'saveExportFile';

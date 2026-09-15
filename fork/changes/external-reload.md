@@ -1,7 +1,7 @@
 # external-reload
 
 A file changed from outside — a tool, git, another editor, a sibling panel — reaches the editor, the
-caret in it or not.
+caret in it or not. No old copy of the file is written over it.
 
 Upstream drops a host update while the editor is `activeElement`, to keep echoes of its own typing
 out — and the editor stays `activeElement` while another window has focus. The update is gone for
@@ -12,15 +12,24 @@ skipped while a host write is in flight or began during the read, skipped where 
 held. What is left is external: held, the pending webview write dropped, every panel told
 `external: true`. A dirty text document — unsaved text of a text editor — is taken as is.
 
-The webview lets `external` past its focus guard, and keeps the caret where its text still stands.
+A host write does not go over a change not taken yet. The host keeps the text last seen in the file —
+read there, or written — and writes in turn; a write finding the file moved from it is not written,
+the file's text taken as external instead. The signal of that change may have been skipped for a host
+write in flight — and a write of the text already there brings none after it.
+
+A webview write carries the revision of the text it was built on — the count of changes from outside
+taken, a revert among them. One older than the host's is dropped, the panel told the text again.
+
+The webview lets `external` past its focus guard, and a new revision too; it keeps the caret where its
+text still stands.
 
 Files:
 
 - `src/extension/MadenMarkdownEditorProvider.ts` — the watcher, the text document, the sibling
-  broadcast, a write count
-- `src/shared/messages.ts` — `external`
-- `src/webview/hooks/use-webview-document-state.ts` — carries it
-- `src/webview/App.tsx` — the guard, the caret
+  broadcast, a write count, a writer, the revision
+- `src/shared/messages.ts` — `external`, `revision`
+- `src/webview/hooks/use-webview-document-state.ts` — carries them
+- `src/webview/App.tsx` — the guard, the caret, the revision
 - `src/extension/services/external-reload.ts` — ours
 - `src/webview/lib/keep-selection.ts` — ours
 - `tests/unit/external-reload.test.ts` — ours

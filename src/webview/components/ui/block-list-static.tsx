@@ -21,23 +21,23 @@ const config: Record<
     Marker: React.FC<SlateRenderElementProps>;
   }
 > = {
-  // fork-delete todo-states
+  // fork-mutate todo-states
+
+  // - Old
 
   // todo: {
   //   Li: TodoLiStatic,
   //   Marker: TodoMarkerStatic,
   // },
 
-  // end-fork-delete todo-states
-
-  // fork-add todo-states
+  // - New
 
   todo: {
     Li: TodoStateLi,
     Marker: TodoStateBox,
   },
 
-  // end-fork-add todo-states
+  // end-fork-mutate todo-states
 };
 
 export const BlockListStatic: RenderStaticNodeWrapper = (props) => {

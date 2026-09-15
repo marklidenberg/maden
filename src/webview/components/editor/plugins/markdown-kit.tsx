@@ -253,13 +253,13 @@ export const MarkdownKit = [
     options: {
       plainMarks: [KEYS.suggestion, KEYS.comment],
 
-      // fork-delete mention-as-typed
+      // fork-mutate mention-as-typed
+
+      // - Old
 
       // remarkPlugins: [remarkMath, remarkGfm, remarkMdx, remarkMention],
 
-      // end-fork-delete mention-as-typed
-
-      // fork-add mention-as-typed
+      // - New
 
       remarkPlugins: [
         remarkMath,
@@ -274,7 +274,7 @@ export const MarkdownKit = [
         remarkMdx,
       ],
 
-      // end-fork-add mention-as-typed
+      // end-fork-mutate mention-as-typed
 
       // fork-add markdown-no-escape
 
@@ -282,17 +282,17 @@ export const MarkdownKit = [
 
       // end-fork-add markdown-no-escape
 
-      // fork-delete todo-states
+      // fork-mutate todo-states
+
+      // - Old
 
       // rules: codeDrawingMarkdownRules,
 
-      // end-fork-delete todo-states
-
-      // fork-add todo-states
+      // - New
 
       rules: { ...codeDrawingMarkdownRules, ...todoStateMarkdownRules },
 
-      // end-fork-add todo-states
+      // end-fork-mutate todo-states
     },
   }),
 ];

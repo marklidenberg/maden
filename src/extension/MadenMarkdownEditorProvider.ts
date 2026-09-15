@@ -91,16 +91,17 @@ export class MadenMarkdownEditorProvider
 
     return vscode.window.registerCustomEditorProvider(
       MadenMarkdownEditorProvider.viewType,
-      // fork-delete keep-tabs
+      // fork-mutate keep-tabs
+
+      // - Old
 
       // provider,
 
-      // end-fork-delete keep-tabs
-      // fork-add keep-tabs
+      // - New
 
       keepTabsProvider(provider),
 
-      // end-fork-add keep-tabs
+      // end-fork-mutate keep-tabs
       {
         supportsMultipleEditorsPerDocument: true,
         webviewOptions: {
@@ -314,7 +315,9 @@ export class MadenMarkdownEditorProvider
         const markdown =
           this.documentText.get(key) ?? enforceTitleHeading('', filePathOverride ?? document.uri.fsPath);
 
-        // fork-delete external-reload
+        // fork-mutate external-reload
+
+        // - Old
 
         // return createStateMessage({
         //   type,
@@ -326,8 +329,7 @@ export class MadenMarkdownEditorProvider
         //   aiEnabled: getAiEnabled(),
         // });
 
-        // end-fork-delete external-reload
-        // fork-add external-reload
+        // - New
 
         return withRevision(
           createStateMessage({
@@ -342,7 +344,7 @@ export class MadenMarkdownEditorProvider
           this.revisionByDocument.get(key) ?? 0
         );
 
-        // end-fork-add external-reload
+        // end-fork-mutate external-reload
       };
 
       const postOrQueue = (message: HostToWebviewMessage) => {
@@ -385,16 +387,17 @@ export class MadenMarkdownEditorProvider
           postOrQueue(buildStateMessage('externalDocumentUpdated'));
         }
 
-        // fork-delete external-reload
+        // fork-mutate external-reload
+
+        // - Old
 
         // broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
 
-        // end-fork-delete external-reload
-        // fork-add external-reload
+        // - New
 
         broadcastToOtherPanels(markExternal(buildStateMessage('externalDocumentUpdated')));
 
-        // end-fork-add external-reload
+        // end-fork-mutate external-reload
       };
 
       const scheduleWrite = () => {
@@ -416,7 +419,9 @@ export class MadenMarkdownEditorProvider
         )
       );
 
-      // fork-delete external-reload
+      // fork-mutate external-reload
+
+      // - Old
 
       // const reloadFromDisk = async () => {
       //   const content = await this.readFileSafe(document.uri);
@@ -429,8 +434,7 @@ export class MadenMarkdownEditorProvider
       //   postOrQueue(buildStateMessage('externalDocumentUpdated'));
       // };
 
-      // end-fork-delete external-reload
-      // fork-add external-reload
+      // - New
 
       const takeExternal = (text: string, source: string) => {
         this.documentText.set(key, text);
@@ -471,7 +475,7 @@ export class MadenMarkdownEditorProvider
         }
       };
 
-      // end-fork-add external-reload
+      // end-fork-mutate external-reload
 
       const subscriptions: vscode.Disposable[] = [];
       let linkedTextDocument: vscode.TextDocument | undefined;
@@ -741,7 +745,9 @@ export class MadenMarkdownEditorProvider
             return;
           }
 
-          // fork-delete external-reload
+          // fork-mutate external-reload
+
+          // - Old
 
           // const normalized = enforceTitleHeading(event.document.getText(), currentFilePath());
           // const previous = this.documentText.get(key);
@@ -754,8 +760,7 @@ export class MadenMarkdownEditorProvider
           // postOrQueue(buildStateMessage('externalDocumentUpdated'));
           // broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
 
-          // end-fork-delete external-reload
-          // fork-add external-reload
+          // - New
 
           // - Saved — the file tells, not the text document's copy of it
 
@@ -771,7 +776,7 @@ export class MadenMarkdownEditorProvider
             takeExternal(normalized, 'text document');
           }
 
-          // end-fork-add external-reload
+          // end-fork-mutate external-reload
         })
       );
 
@@ -872,7 +877,9 @@ export class MadenMarkdownEditorProvider
     const content = await this.readFileSafe(document.uri);
     const normalized = enforceTitleHeading(content, this.documentFilePath.get(key) ?? document.uri.fsPath);
     this.documentText.set(key, normalized);
-    // fork-delete external-reload
+    // fork-mutate external-reload
+
+    // - Old
 
     // postToDocumentPanels(this.panelsByDocument, key, {
     //   type: 'externalDocumentUpdated',
@@ -884,8 +891,7 @@ export class MadenMarkdownEditorProvider
     //   aiEnabled: (await this.aiRuntime.loadSettingsPublic()).enabled,
     // });
 
-    // end-fork-delete external-reload
-    // fork-add external-reload
+    // - New
 
     // - The file as read, a webview write built on the text before it dropped
 
@@ -910,7 +916,7 @@ export class MadenMarkdownEditorProvider
       )
     );
 
-    // end-fork-add external-reload
+    // end-fork-mutate external-reload
   }
 
   public async backupCustomDocument(

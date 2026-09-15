@@ -42,7 +42,9 @@ describe('full-file markdown debug conversion', () => {
     expect(valueJson).toContain('Фронт');
     expect(valueJson).toContain('https://habr.com/ru/companies/X5Tech/articles/723742/');
     expect(findTextLeaf(result.value, '1.1. Цель')).toMatchObject({ bold: true });
-    // fork-delete markdown-no-escape
+    // fork-mutate markdown-no-escape
+
+    // - Old
 
     // expect(result.serializedMarkdown).toContain(
     //   '_Пример:_\\\n_Доработать JSON-структуру события'
@@ -51,9 +53,7 @@ describe('full-file markdown debug conversion', () => {
     //   '_Пример:_\\\n_В рамках задачи реализовать хранение метрики'
     // );
 
-    // end-fork-delete markdown-no-escape
-
-    // fork-add markdown-no-escape
+    // - New
 
     expect(result.serializedMarkdown).toContain(
       '*Пример:*\\\n*Доработать JSON-структуру события'
@@ -62,7 +62,7 @@ describe('full-file markdown debug conversion', () => {
       '*Пример:*\\\n*В рамках задачи реализовать хранение метрики'
     );
 
-    // end-fork-add markdown-no-escape
+    // end-fork-mutate markdown-no-escape
 
     expect(result.serializedMarkdown).toContain('Проблема: <описание текущей проблемы>');
     expect(result.serializedMarkdown).not.toContain('&lt;описание текущей проблемы&gt;');

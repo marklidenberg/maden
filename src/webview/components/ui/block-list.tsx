@@ -31,23 +31,23 @@ const config: Record<
     Marker: React.FC<PlateElementProps>;
   }
 > = {
-  // fork-delete todo-states
+  // fork-mutate todo-states
+
+  // - Old
 
   // todo: {
   //   Li: TodoLi,
   //   Marker: TodoMarker,
   // },
 
-  // end-fork-delete todo-states
-
-  // fork-add todo-states
+  // - New
 
   todo: {
     Li: TodoStateLi,
     Marker: TodoStateMarker,
   },
 
-  // end-fork-add todo-states
+  // end-fork-mutate todo-states
 };
 
 export const BlockList: RenderNodeWrapper = (props) => {

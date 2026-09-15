@@ -163,7 +163,9 @@ export function TurnIntoToolbarButton(
   return (
     <Popover open={open} onOpenChange={setOpen} modal={false} {...props}>
       <PopoverTrigger asChild>
-        {/* fork-delete toolbar-right */}
+        {/* fork-mutate toolbar-right */}
+
+        {/* - Old */}
 
         {/* <ToolbarButton
           className="min-w-[125px]"
@@ -174,8 +176,7 @@ export function TurnIntoToolbarButton(
           {selectedItem.label}
         </ToolbarButton> */}
 
-        {/* end-fork-delete toolbar-right */}
-        {/* fork-add toolbar-right */}
+        {/* - New */}
 
         {/* The block type's icon — a label is too wide for the rail */}
         <ToolbarButton
@@ -187,7 +188,7 @@ export function TurnIntoToolbarButton(
           {selectedItem.icon}
         </ToolbarButton>
 
-        {/* end-fork-add toolbar-right */}
+        {/* end-fork-mutate toolbar-right */}
       </PopoverTrigger>
 
       <PopoverPrimitive.Portal>

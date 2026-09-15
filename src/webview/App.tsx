@@ -152,17 +152,18 @@ function MarkdownEditor({
   }, [editor, pane.pinned]);
 
   // end-fork-add panes
-  // fork-delete panes
+  // fork-mutate panes
+
+  // - Old
 
   // const isApplyingRemoteChangeRef = React.useRef(false);
   // const lastSyncedMarkdownRef = React.useRef('');
 
-  // end-fork-delete panes
-  // fork-add panes
+  // - New
 
   const { isApplyingRemoteChangeRef, lastSyncedMarkdownRef, revisionRef } = hostSync;
 
-  // end-fork-add panes
+  // end-fork-mutate panes
   // fork-add external-reload
 
   // The host's revision of the text the editor holds — a write built on an older one is dropped
@@ -221,15 +222,16 @@ function MarkdownEditor({
       isEditorFocused = !!fallbackEditor && fallbackEditor.contains(document.activeElement);
     }
 
-    // fork-delete external-reload
+    // fork-mutate external-reload
+
+    // - Old
 
     // // Ignore stale/echoed remote updates while the user is actively typing.
     // if (isEditorFocused && lastSyncedMarkdownRef.current.length > 0) {
     //   return;
     // }
 
-    // end-fork-delete external-reload
-    // fork-add external-reload
+    // - New
 
     // An echo of this editor's own typing waits; a change from outside does not
     if (
@@ -241,7 +243,7 @@ function MarkdownEditor({
       return;
     }
 
-    // end-fork-add external-reload
+    // end-fork-mutate external-reload
 
     const nextValue = deserializeMarkdownToPlateValue(incomingMarkdown, {
       context: {
@@ -285,12 +287,13 @@ function MarkdownEditor({
     queueMicrotask(() => {
       isApplyingRemoteChangeRef.current = false;
     });
-    // fork-delete external-reload
+    // fork-mutate external-reload
+
+    // - Old
 
     // }, [documentState.fileName, documentState.filePath, documentState.markdown, editor]);
 
-    // end-fork-delete external-reload
-    // fork-add external-reload
+    // - New
 
     // - A text from outside equal to the one held — the revision alone moves
   }, [
@@ -300,7 +303,7 @@ function MarkdownEditor({
     documentState.revision,
     editor,
   ]);
-  // end-fork-add external-reload
+  // end-fork-mutate external-reload
 
   const onValueChange = React.useCallback(
     ({ editor, value }: { editor: { children: Value }; value: Value }) => {
@@ -326,15 +329,16 @@ function MarkdownEditor({
       }
 
       lastSyncedMarkdownRef.current = markdown;
-      // fork-delete external-reload
+      // fork-mutate external-reload
+
+      // - Old
 
       // postToHost({
       //   type: 'documentChanged',
       //   markdown,
       // });
 
-      // end-fork-delete external-reload
-      // fork-add external-reload
+      // - New
 
       postToHost({
         type: 'documentChanged',
@@ -342,7 +346,7 @@ function MarkdownEditor({
         revision: revisionRef.current,
       });
 
-      // end-fork-add external-reload
+      // end-fork-mutate external-reload
     },
     []
   );
@@ -417,16 +421,17 @@ export function App() {
 
   const [aiSettingsOpen, setAiSettingsOpen] = React.useState(false);
   const [madenSettingsOpen, setMadenSettingsOpen] = React.useState(false);
-  // fork-delete topbar-toggle
+  // fork-mutate topbar-toggle
+
+  // - Old
 
   // const [topbarVisible, setTopbarVisible] = React.useState(true);
 
-  // end-fork-delete topbar-toggle
-  // fork-add topbar-toggle
+  // - New
 
   const [topbarVisible, setTopbarVisible] = React.useState(false);
 
-  // end-fork-add topbar-toggle
+  // end-fork-mutate topbar-toggle
   const [fontMode, setFontMode] = React.useState<FontMode>('default');
   const [themeMode, setThemeMode] =
     React.useState<MadenThemeMode>(readStoredThemeMode);
@@ -476,20 +481,21 @@ export function App() {
     const storedFont = window.localStorage.getItem(FONT_MODE_STORAGE_KEY);
     const storedWideMode = window.localStorage.getItem(WIDE_MODE_STORAGE_KEY);
 
-    // fork-delete topbar-toggle
+    // fork-mutate topbar-toggle
+
+    // - Old
 
     // if (storedTopbar === 'hidden') {
     //   setTopbarVisible(false);
     // }
 
-    // end-fork-delete topbar-toggle
-    // fork-add topbar-toggle
+    // - New
 
     if (storedTopbar === 'visible') {
       setTopbarVisible(true);
     }
 
-    // end-fork-add topbar-toggle
+    // end-fork-mutate topbar-toggle
 
     if (storedFont === 'serif' || storedFont === 'mono' || storedFont === 'default') {
       setFontMode(storedFont);
@@ -544,7 +550,9 @@ export function App() {
           />
         </ErrorBoundary>
 
-        {/* fork-delete panes */}
+        {/* fork-mutate panes */}
+
+        {/* - Old */}
 
         {/* <ErrorBoundary label="Markdown editor">
           <MarkdownEditor
@@ -554,8 +562,7 @@ export function App() {
           />
         </ErrorBoundary> */}
 
-        {/* end-fork-delete panes */}
-        {/* fork-add panes */}
+        {/* - New */}
 
         <Panes>
           {(pane) => (
@@ -570,7 +577,7 @@ export function App() {
           )}
         </Panes>
 
-        {/* end-fork-add panes */}
+        {/* end-fork-mutate panes */}
 
         <AiSettingsDialog
           open={aiSettingsOpen}

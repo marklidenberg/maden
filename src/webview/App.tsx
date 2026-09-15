@@ -278,7 +278,16 @@ export function App() {
 
   const [aiSettingsOpen, setAiSettingsOpen] = React.useState(false);
   const [madenSettingsOpen, setMadenSettingsOpen] = React.useState(false);
-  const [topbarVisible, setTopbarVisible] = React.useState(true);
+  // fork-delete topbar-toggle
+
+  // const [topbarVisible, setTopbarVisible] = React.useState(true);
+
+  // end-fork-delete topbar-toggle
+  // fork-add topbar-toggle
+
+  const [topbarVisible, setTopbarVisible] = React.useState(false);
+
+  // end-fork-add topbar-toggle
   const [fontMode, setFontMode] = React.useState<FontMode>('default');
   const [themeMode, setThemeMode] =
     React.useState<MadenThemeMode>(readStoredThemeMode);
@@ -328,9 +337,20 @@ export function App() {
     const storedFont = window.localStorage.getItem(FONT_MODE_STORAGE_KEY);
     const storedWideMode = window.localStorage.getItem(WIDE_MODE_STORAGE_KEY);
 
-    if (storedTopbar === 'hidden') {
-      setTopbarVisible(false);
+    // fork-delete topbar-toggle
+
+    // if (storedTopbar === 'hidden') {
+    //   setTopbarVisible(false);
+    // }
+
+    // end-fork-delete topbar-toggle
+    // fork-add topbar-toggle
+
+    if (storedTopbar === 'visible') {
+      setTopbarVisible(true);
     }
+
+    // end-fork-add topbar-toggle
 
     if (storedFont === 'serif' || storedFont === 'mono' || storedFont === 'default') {
       setFontMode(storedFont);

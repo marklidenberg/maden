@@ -21,6 +21,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+// fork-add topbar-toggle
+
+import { TopbarToggle } from './topbar-toggle';
+
+// end-fork-add topbar-toggle
+
 export type FontMode = 'default' | 'serif' | 'mono';
 
 export type ExportActions = {
@@ -140,6 +146,11 @@ export function AppearanceMenu({
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      {/* fork-add topbar-toggle */}
+
+      <TopbarToggle visible={topbarVisible} onToggle={onTopbarToggle} />
+
+      {/* end-fork-add topbar-toggle */}
     </div>
   );
 }

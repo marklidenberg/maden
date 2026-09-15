@@ -10,7 +10,7 @@ Upstream keeps moving. Our changes stay marked and documented, so every merge is
 - `fork-fba28f70` — the fork
 - `fork-latest` — a tag on the fork branch's tip
 
-The hash is the fork point. It never changes, however far the branch travels. `fork-latest` is how
+The hash is the upstream commit last merged in — each merge opens a new branch. `fork-latest` is how
 to reach the fork without knowing it:
 
 ```bash
@@ -126,11 +126,15 @@ What it does, why upstream does not, and the files it touches — by path, never
 
 ## Merging upstream
 
+On the fork branch:
+
 ```bash
-git fetch upstream
-git checkout fork-fba28f70
-git merge upstream/main
+fork/merge.sh                # upstream/main's head
+fork/merge.sh 3c1d9e02       # or a given commit
 ```
+
+A new branch `fork-<hash>`, off the fork branch, the commit merged in — by hash, never
+`upstream/main`: it moves on every fetch.
 
 Conflicts land on our regions. Resolve by keeping the region whole, markers included, and re-reading
 its change doc — the doc is the intent, the region is only where it landed.
@@ -139,6 +143,14 @@ On a mutation, `Old` takes upstream's new text and `New` is written over that �
 is only useful while it is upstream's.
 
 A change upstream has since adopted: drop the region, drop the doc.
+
+Committed and built:
+
+```bash
+git push -u origin HEAD
+git tag -f fork-latest HEAD
+git push -f origin fork-latest
+```
 
 ## Rules
 

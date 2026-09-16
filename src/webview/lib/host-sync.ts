@@ -14,6 +14,11 @@ import {
   serializePlateValueToMarkdown,
 } from '@/lib/markdown-plate-conversion';
 import { hasOwnOperations, holdDocument, holdsDocument, takeDocument } from '@/lib/panes';
+// fork-add fast-reload
+
+import { blockKey, patchBlocks } from '@/lib/patch-blocks';
+
+// end-fork-add fast-reload
 
 // The host's text, as a message brings it
 export type HostText = {
@@ -103,7 +108,18 @@ export const takeHostText = (
   const kept = keepBlocks(editor.children, next, editor.selection);
 
   takeDocument(editor, () => {
-    editor.tf.setValue(next);
+    // fork-mutate fast-reload
+
+    // - Old
+
+    // editor.tf.setValue(next);
+
+    // - New
+
+    // The blocks changed alone — every block put in anew held the webview for seconds
+    patchBlocks(editor, next, blockKey);
+
+    // end-fork-mutate fast-reload
     keepSelection(editor, kept);
   });
 

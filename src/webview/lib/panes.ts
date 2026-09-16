@@ -9,6 +9,11 @@ import { FoldPlugin } from '@/lib/fold';
 import { keepSelection } from '@/lib/keep-selection';
 import { getZoom, NodeZoomPlugin } from '@/lib/node-zoom';
 import { spotlightJump } from '@/lib/spotlight';
+// fork-add fast-reload
+
+import { patchBlocks } from '@/lib/patch-blocks';
+
+// end-fork-add fast-reload
 
 // A pane: a view of the one document — an editor of its own, with its zoom and its folds; `jump` —
 // the bullet it opens zoomed in on.
@@ -148,7 +153,18 @@ const takenWhole = (editor: SlateEditor) => {
 
 // A pane given the whole document of another — the holding with it.
 const takeWhole = (editor: SlateEditor, source: SlateEditor) => {
-  takeForeign(editor, () => editor.tf.setValue(structuredClone(source.children)));
+  // fork-mutate fast-reload
+
+  // - Old
+
+  // takeForeign(editor, () => editor.tf.setValue(structuredClone(source.children)));
+
+  // - New
+
+  // The blocks apart alone
+  takeForeign(editor, () => patchBlocks(editor, source.children));
+
+  // end-fork-mutate fast-reload
   // fork-add session
 
   takenWhole(editor);

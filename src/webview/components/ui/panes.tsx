@@ -54,6 +54,19 @@ const TOP_ROW: React.CSSProperties = {
   top: '0.75rem',
 };
 
+// fork-add pane-switch
+
+// A pane's editor, rendered again as its own props move alone — a switch renders the two panes it
+// touches, not every one.
+const PaneContent = React.memo(function PaneContent({
+  render,
+  ...pane
+}: PaneProps & { render: (pane: PaneProps) => React.ReactNode }) {
+  return <>{render(pane)}</>;
+});
+
+// end-fork-add pane-switch
+
 // The panes in a column, each a view of the document, as tall as its text; a pin in its top right
 // corner — more than one, a close beside it, a grip left of the pane, the focused one ringed.
 // fork-mutate session
@@ -258,14 +271,32 @@ export function Panes({
             </div>
 
             <div className="relative">
-              {children({
+              {/* fork-mutate pane-switch */}
+
+              {/* - Old */}
+
+              {/* {children({
                 focused,
                 from: pane.from,
                 id: pane.id,
                 jump: pane.jump,
                 pinned,
                 primary: index === 0,
-              })}
+              })} */}
+
+              {/* - New */}
+
+              <PaneContent
+                focused={focused}
+                from={pane.from}
+                id={pane.id}
+                jump={pane.jump}
+                pinned={pinned}
+                primary={index === 0}
+                render={children}
+              />
+
+              {/* end-fork-mutate pane-switch */}
 
               {many && focused && (
                 <div

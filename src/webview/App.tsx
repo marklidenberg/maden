@@ -46,6 +46,11 @@ connectHost(postToHost);
 import { type PaneProps, Panes } from '@/components/ui/panes';
 import { closeFind } from '@/lib/find-replace';
 import { PanePlugin, registerPane } from '@/lib/panes';
+// fork-add pane-switch
+
+import { FindReplacePlugin } from '@/lib/find-replace';
+
+// end-fork-add pane-switch
 
 const noExport = () => {};
 
@@ -124,12 +129,39 @@ function MarkdownEditor({
 
   // - Focused — the singletons act on it, the caret in it; not — its find closed
 
+  // fork-mutate pane-switch
+
+  // - Old
+
+  // React.useEffect(() => {
+  //   editor.setOption(PanePlugin, 'focused', pane.focused);
+  //
+  //   if (!pane.focused) closeFind(editor);
+  //   else if (!editor.api.isFocused()) editor.tf.focus();
+  // }, [editor, pane.focused]);
+
+  // - New
+
+  // A closed find not closed again — its redecoration renders the whole pane anew. The caret after
+  // the click's own focus: one pressed there has it by then, where it pressed.
+
   React.useEffect(() => {
     editor.setOption(PanePlugin, 'focused', pane.focused);
 
-    if (!pane.focused) closeFind(editor);
-    else if (!editor.api.isFocused()) editor.tf.focus();
+    if (!pane.focused) {
+      if (editor.getOption(FindReplacePlugin, 'open')) closeFind(editor);
+
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      if (!editor.api.isFocused()) editor.tf.focus();
+    });
+
+    return () => clearTimeout(timer);
   }, [editor, pane.focused]);
+
+  // end-fork-mutate pane-switch
 
   // - Pinned — the spotlight opens another bullet in a new pane
 

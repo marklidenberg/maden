@@ -36,6 +36,7 @@ import { postToHost } from '@/vscode';
 // fork-add external-reload
 
 import { keepSelection } from '@/lib/keep-selection';
+import { takeDocument } from '@/lib/panes';
 
 // end-fork-add external-reload
 // fork-add fold-state
@@ -269,14 +270,25 @@ function MarkdownEditor({
     // end-fork-add fold-state
 
     isApplyingRemoteChangeRef.current = true;
-    editor.tf.withoutSaving(() => {
+    // fork-mutate external-reload
+
+    // - Old
+
+    // editor.tf.withoutSaving(() => {
+    //   editor.tf.setValue(nextValue);
+    // });
+
+    // - New
+
+    // - The one document across the panes: this one takes the text and keeps its caret on it, every
+    //   other pane takes the text whole
+
+    takeDocument(editor, () => {
       editor.tf.setValue(nextValue);
-      // fork-add external-reload
-
       keepSelection(editor, kept);
-
-      // end-fork-add external-reload
     });
+
+    // end-fork-mutate external-reload
 
     try {
       lastSyncedMarkdownRef.current = serializePlateValueToMarkdown(editor, nextValue);

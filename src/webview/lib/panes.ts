@@ -137,6 +137,23 @@ export const forwardChange = (editor: SlateEditor) => {
   });
 };
 
+// fork-add external-reload
+
+// The document from outside — the pane told of it takes it, every other pane takes it whole. A text
+// in place of the text: its operations, forwarded, would land on a pane that took the document as it
+// opened, and leave the old text standing under the new.
+export const takeDocument = (editor: SlateEditor, take: () => void) => {
+  takeForeign(editor, take);
+
+  editors.forEach((other) => {
+    if (other === editor) return;
+
+    takeForeign(other, () => other.tf.setValue(structuredClone(editor.children)));
+  });
+};
+
+// end-fork-add external-reload
+
 export const PanePlugin = createPlatePlugin({
   key: 'pane',
   options: { focused: true, pinned: false },

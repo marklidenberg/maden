@@ -1,7 +1,8 @@
 // fork-add external-reload
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
+import { NodeApi } from 'platejs';
 import { createPlateEditor } from 'platejs/react';
 
 import {
@@ -11,6 +12,8 @@ import {
   withRevision,
 } from '../../src/extension/services/external-reload';
 import { keepSelection } from '../../src/webview/lib/keep-selection';
+import { deserializeMarkdownToPlateValue } from '../../src/webview/lib/markdown-plate-conversion';
+import { forwardChange, PanePlugin, registerPane, takeDocument } from '../../src/webview/lib/panes';
 
 const paragraph = (text: string) => ({ children: [{ text }], type: 'p' });
 
@@ -259,6 +262,57 @@ describe('keepSelection', () => {
     keepSelection(editor, selection);
 
     expect(editor.selection).toEqual(replaced);
+  });
+});
+
+describe('takeDocument', () => {
+  const HELD = ['# Title', '', '- one', '- two'].join('\n');
+  const OUTSIDE = ['# Title', '', '- one', '- two changed'].join('\n');
+
+  const value = (markdown: string) => deserializeMarkdownToPlateValue(markdown).value;
+
+  // A pane's editor — the text it opened on, or the empty value it holds until a text arrives
+  const pane = (markdown?: string) =>
+    createPlateEditor({
+      plugins: [PanePlugin],
+      value: markdown === undefined ? [paragraph('')] : value(markdown),
+    });
+
+  const texts = (editor: ReturnType<typeof pane>) =>
+    editor.children.map((node) => NodeApi.string(node));
+
+  const registered: (() => void)[] = [];
+
+  const register = (id: string, editor: ReturnType<typeof pane>) =>
+    registered.push(registerPane(id, editor));
+
+  afterEach(() => registered.splice(0).forEach((off) => off()));
+
+  it('gives a text from outside to every pane', () => {
+    const first = pane(HELD);
+    const second = pane(HELD);
+
+    register('a', first);
+    register('b', second);
+    takeDocument(first, () => first.tf.setValue(value(OUTSIDE)));
+
+    expect(texts(first)).toEqual(['Title', 'one', 'two changed']);
+    expect(texts(second)).toEqual(texts(first));
+  });
+
+  it('does not give it again to a pane that opened on it', () => {
+    const first = pane();
+
+    register('a', first);
+    takeDocument(first, () => first.tf.setValue(value(HELD)));
+
+    // - A pane opening in the same turn takes the document as it stands; the flush comes after it
+    const second = pane();
+
+    register('b', second);
+    forwardChange(first);
+
+    expect(texts(second)).toEqual(['Title', 'one', 'two']);
   });
 });
 

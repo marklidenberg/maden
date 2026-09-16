@@ -120,6 +120,72 @@ const ownOperations = (editor: SlateEditor): Operation[] => {
   );
 };
 
+// fork-add edit-stability
+
+// The editors holding the file's document — given it by the host, or by a pane holding it. One
+// opened on nothing sends nothing to the host.
+const holding = new WeakSet<SlateEditor>();
+
+export const holdsDocument = (editor: SlateEditor) => holding.has(editor);
+
+export const holdDocument = (editor: SlateEditor) => {
+  holding.add(editor);
+};
+
+export const hasOwnOperations = (editor: SlateEditor) => ownOperations(editor).length > 0;
+
+// A pane given the whole document of another — the holding with it.
+const takeWhole = (editor: SlateEditor, source: SlateEditor) => {
+  takeForeign(editor, () => editor.tf.setValue(structuredClone(source.children)));
+
+  if (holding.has(source)) holding.add(editor);
+};
+
+// The history of a document no longer there — its operations would land at the wrong place. The
+// object is shared: cleared in place, for every pane.
+const forgetHistory = (editor: SlateEditor) => {
+  editor.history.undos = [];
+  editor.history.redos = [];
+};
+
+const sameNode = (a: unknown, b: unknown): boolean => {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || !a || !b) return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+
+  const aKeys = Object.keys(a).filter((key) => (a as Record<string, unknown>)[key] !== undefined);
+  const bKeys = Object.keys(b).filter((key) => (b as Record<string, unknown>)[key] !== undefined);
+
+  return (
+    aKeys.length === bKeys.length &&
+    aKeys.every((key) =>
+      sameNode((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])
+    )
+  );
+};
+
+// A pane gone apart from the one it took a change from: the blocks' ids, and the blocks about the
+// ones the operations named.
+const hasDiverged = (editor: SlateEditor, other: SlateEditor, operations: Operation[]) => {
+  const { children } = editor;
+
+  if (other.children.length !== children.length) return true;
+  if (other.children.some((node, index) => node.id !== children[index].id)) return true;
+
+  const named = operations.flatMap((operation) => [
+    ...('path' in operation ? [(operation.path as number[])[0]] : []),
+    ...('newPath' in operation ? [(operation.newPath as number[])[0]] : []),
+  ]);
+
+  return named.some((index) =>
+    [index - 1, index, index + 1].some(
+      (at) => at >= 0 && at < children.length && !sameNode(children[at], other.children[at])
+    )
+  );
+};
+
+// end-fork-add edit-stability
+
 // The pane's change onto every other; one that will not take it — the whole document again.
 export const forwardChange = (editor: SlateEditor) => {
   const operations = ownOperations(editor);
@@ -129,11 +195,29 @@ export const forwardChange = (editor: SlateEditor) => {
   editors.forEach((other) => {
     if (other === editor) return;
 
+    // fork-mutate edit-stability
+
+    // - Old
+
+    // try {
+    //   takeForeign(other, () => operations.forEach((operation) => other.tf.apply(operation)));
+    // } catch {
+    //   takeForeign(other, () => other.tf.setValue(structuredClone(editor.children)));
+    // }
+
+    // - New
+
+    // - Taken as is; gone apart — a normalization of its own, a change lost — the whole document again
+
     try {
       takeForeign(other, () => operations.forEach((operation) => other.tf.apply(operation)));
+
+      if (hasDiverged(editor, other, operations)) takeWhole(other, editor);
     } catch {
-      takeForeign(other, () => other.tf.setValue(structuredClone(editor.children)));
+      takeWhole(other, editor);
     }
+
+    // end-fork-mutate edit-stability
   });
 };
 
@@ -144,11 +228,29 @@ export const forwardChange = (editor: SlateEditor) => {
 // opened, and leave the old text standing under the new.
 export const takeDocument = (editor: SlateEditor, take: () => void) => {
   takeForeign(editor, take);
+  // fork-add edit-stability
+
+  // - The history of the text before it gone; the document held
+
+  forgetHistory(editor);
+  holding.add(editor);
+
+  // end-fork-add edit-stability
 
   editors.forEach((other) => {
     if (other === editor) return;
 
-    takeForeign(other, () => other.tf.setValue(structuredClone(editor.children)));
+    // fork-mutate edit-stability
+
+    // - Old
+
+    // takeForeign(other, () => other.tf.setValue(structuredClone(editor.children)));
+
+    // - New
+
+    takeWhole(other, editor);
+
+    // end-fork-mutate edit-stability
   });
 };
 
@@ -163,6 +265,40 @@ export const PanePlugin = createPlatePlugin({
     },
   },
 });
+
+// fork-add edit-stability
+
+// An undo or a redo that will not apply — its operations half applied: the document put back as it
+// stood, the history dropped, so the next press does not try it again.
+export const HistoryGuardPlugin = createPlatePlugin({
+  key: 'historyGuard',
+}).overrideEditor(({ editor, tf: { redo, undo } }) => {
+  const guard = (step: () => void) => {
+    const children = editor.children;
+    const selection = editor.selection;
+
+    try {
+      step();
+    } catch (error) {
+      console.error('Maden: history step failed, the document put back', error);
+
+      forgetHistory(editor);
+      editor.tf.withoutSaving(() => {
+        editor.tf.setValue(children);
+        keepSelection(editor, selection);
+      });
+    }
+  };
+
+  return {
+    transforms: {
+      redo: () => guard(redo),
+      undo: () => guard(undo),
+    },
+  };
+});
+
+// end-fork-add edit-stability
 
 // The singletons — the magnifier, the find, the rail — act on the focused pane alone.
 export const isPaneFocused = (editor: SlateEditor) => editor.getOption(PanePlugin, 'focused');
@@ -180,7 +316,17 @@ export const registerPane = (id: string, editor: SlateEditor, from?: string, jum
 
   if (source) {
     editor.history = source.history;
-    takeForeign(editor, () => editor.tf.setValue(structuredClone(source.children)));
+    // fork-mutate edit-stability
+
+    // - Old
+
+    // takeForeign(editor, () => editor.tf.setValue(structuredClone(source.children)));
+
+    // - New
+
+    takeWhole(editor, source);
+
+    // end-fork-mutate edit-stability
   }
 
   if (split) {

@@ -81,8 +81,40 @@ export class MadenMarkdownEditorProvider
 
   // end-fork-add external-reload
 
+  // fork-add edit-stability
+
+  private static instance: MadenMarkdownEditorProvider | undefined;
+
+  // Every webview write still pending — made before the extension host goes
+  public static async flushPendingWrites(): Promise<void> {
+    const provider = MadenMarkdownEditorProvider.instance;
+
+    if (!provider) {
+      return;
+    }
+
+    await Promise.all(
+      [...provider.runtimeByDocument.entries()]
+        .filter(([, runtime]) => runtime.pendingMarkdownFromWebview !== undefined)
+        .map(([key]) => {
+          const uri = vscode.Uri.parse(key);
+
+          return provider
+            .flushPendingMarkdownForDocument(uri, key, provider.documentFilePath.get(key) ?? uri.fsPath)
+            .catch(() => undefined);
+        })
+    );
+  }
+
+  // end-fork-add edit-stability
+
   public static register(context: vscode.ExtensionContext): vscode.Disposable {
     const provider = new MadenMarkdownEditorProvider(context);
+    // fork-add edit-stability
+
+    MadenMarkdownEditorProvider.instance = provider;
+
+    // end-fork-add edit-stability
 
     return vscode.window.registerCustomEditorProvider(
       MadenMarkdownEditorProvider.viewType,
@@ -475,10 +507,31 @@ export class MadenMarkdownEditorProvider
           return;
         }
 
-        this.documentText.set(key, normalized);
+        // fork-mutate edit-stability
+
+        // - Old
+
+        // this.documentText.set(key, normalized);
+        // log(`Detected external diff (${reason}). len=${normalized.length}`);
+        // postOrQueue(buildStateMessage('externalDocumentUpdated'));
+        // broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
+
+        // - New
+
+        // - Saved — the file tells: the text document's copy trails the host's own writes, and would
+        //   put an older text over the editor's
+
+        if (!linkedTextDocument.isDirty) {
+          void reloadFromDisk();
+          return;
+        }
+
+        // - Unsaved text of a text editor — a change from outside
+
         log(`Detected external diff (${reason}). len=${normalized.length}`);
-        postOrQueue(buildStateMessage('externalDocumentUpdated'));
-        broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
+        takeExternal(normalized, reason);
+
+        // end-fork-mutate edit-stability
       };
 
       try {
@@ -500,19 +553,40 @@ export class MadenMarkdownEditorProvider
         webviewPanel.webview.onDidReceiveMessage(async (message: WebviewToHostMessage) => {
           if (message.type === 'ready') {
             isReady = true;
-            if (pendingMessage) {
-              void webviewPanel.webview.postMessage(pendingMessage);
-              pendingMessage = undefined;
-            } else {
-              postOrQueue(buildStateMessage('initDocument'));
-            }
+            // fork-mutate edit-stability
+
+            // - Old
+
+            // if (pendingMessage) {
+            //   void webviewPanel.webview.postMessage(pendingMessage);
+            //   pendingMessage = undefined;
+            // } else {
+            //   postOrQueue(buildStateMessage('initDocument'));
+            // }
+            //
+            // if (pendingInitialExternalMarkdown !== undefined) {
+            //   this.documentText.set(key, pendingInitialExternalMarkdown);
+            //   postOrQueue(buildStateMessage('externalDocumentUpdated'));
+            //   broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
+            //   pendingInitialExternalMarkdown = undefined;
+            // }
+
+            // - New
+
+            // - The text as it stands now — a message queued at open may hold an older one, another
+            //   panel's write made since
+
+            pendingMessage = undefined;
+            postOrQueue(buildStateMessage('initDocument'));
+
+            // - The linked text document's, where it holds another — through the same checks as later
 
             if (pendingInitialExternalMarkdown !== undefined) {
-              this.documentText.set(key, pendingInitialExternalMarkdown);
-              postOrQueue(buildStateMessage('externalDocumentUpdated'));
-              broadcastToOtherPanels(buildStateMessage('externalDocumentUpdated'));
               pendingInitialExternalMarkdown = undefined;
+              syncFromLinkedText('open');
             }
+
+            // end-fork-mutate edit-stability
 
             // Cursor can attach inline diff state asynchronously; poll linked text shortly after open.
             const delayedChecks = [120, 450, 1000];
@@ -789,7 +863,27 @@ export class MadenMarkdownEditorProvider
 
       subscriptions.push(
         webviewPanel.onDidDispose(() => {
-          clearTimer();
+          // fork-mutate edit-stability
+
+          // - Old
+
+          // clearTimer();
+
+          // - New
+
+          // - The write still pending — made, not dropped with the panel; the other panels told
+
+          if (runtime.pendingMarkdownFromWebview !== undefined && !isReadOnly()) {
+            void this.flushPendingMarkdownForDocument(document.uri, key, currentFilePath()).then(
+              () =>
+                broadcastToOtherPanels(markExternal(buildStateMessage('externalDocumentUpdated'))),
+              (error) => log(`Pending write on close failed: ${String(error)}`)
+            );
+          } else {
+            clearTimer();
+          }
+
+          // end-fork-mutate edit-stability
           for (const requestId of aiRequestIds) {
             this.aiRuntime.cancelRequest(requestId);
           }

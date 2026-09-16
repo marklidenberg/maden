@@ -33,30 +33,19 @@ import {
   serializePlateValueToMarkdown,
 } from '@/lib/markdown-plate-conversion';
 import { postToHost } from '@/vscode';
-// fork-add external-reload
+// fork-add edit-stability
 
-import { keepSelection } from '@/lib/keep-selection';
-import { takeDocument } from '@/lib/panes';
+import { connectHost, takeHostText } from '@/lib/host-sync';
 
-// end-fork-add external-reload
-// fork-add fold-state
+connectHost(postToHost);
 
-import { keepBlocks } from '@/lib/keep-blocks';
-
-// end-fork-add fold-state
+// end-fork-add edit-stability
 
 // fork-add panes
 
 import { type PaneProps, Panes } from '@/components/ui/panes';
 import { closeFind } from '@/lib/find-replace';
 import { PanePlugin, registerPane } from '@/lib/panes';
-
-// The host's text as the editor holds it — one across the panes, held by the first
-const hostSync = {
-  isApplyingRemoteChangeRef: { current: false },
-  lastSyncedMarkdownRef: { current: '' },
-  revisionRef: { current: undefined as number | undefined },
-};
 
 const noExport = () => {};
 
@@ -126,10 +115,6 @@ function MarkdownEditor({
 
   // fork-add panes
 
-  const paneRef = React.useRef(pane);
-
-  paneRef.current = pane;
-
   // - Among the panes — the document from one, the view from the pane split, zoomed in on its jump
 
   React.useEffect(
@@ -153,161 +138,112 @@ function MarkdownEditor({
   }, [editor, pane.pinned]);
 
   // end-fork-add panes
-  // fork-mutate panes
+  // fork-mutate edit-stability
 
   // - Old
 
   // const isApplyingRemoteChangeRef = React.useRef(false);
   // const lastSyncedMarkdownRef = React.useRef('');
+  //
+  // React.useEffect(() => {
+  //   const incomingMarkdown = normalizeLineEndings(documentState.markdown);
+  //   const canonicalIncomingMarkdown = canonicalizeMarkdown(incomingMarkdown);
+  //   const canonicalLastSyncedMarkdown = canonicalizeMarkdown(lastSyncedMarkdownRef.current);
+  //
+  //   if (canonicalIncomingMarkdown === canonicalLastSyncedMarkdown) {
+  //     return;
+  //   }
+  //
+  //   try {
+  //     const currentMarkdown = serializePlateValueToMarkdown(
+  //       editor as never,
+  //       editor.children as Value
+  //     );
+  //
+  //     if (canonicalizeMarkdown(currentMarkdown) === canonicalIncomingMarkdown) {
+  //       lastSyncedMarkdownRef.current = incomingMarkdown;
+  //       return;
+  //     }
+  //   } catch {
+  //     // Best effort comparison only.
+  //   }
+  //
+  //   let isEditorFocused = false;
+  //   try {
+  //     const editorElement = editor.api.toDOMNode(editor) as HTMLElement;
+  //     isEditorFocused = !!editorElement && editorElement.contains(document.activeElement);
+  //   } catch {
+  //     const fallbackEditor = document.querySelector('[data-slate-editor]') as HTMLElement | null;
+  //     isEditorFocused = !!fallbackEditor && fallbackEditor.contains(document.activeElement);
+  //   }
+  //
+  //   // Ignore stale/echoed remote updates while the user is actively typing.
+  //   if (isEditorFocused && lastSyncedMarkdownRef.current.length > 0) {
+  //     return;
+  //   }
+  //
+  //   const nextValue = deserializeMarkdownToPlateValue(incomingMarkdown, {
+  //     context: {
+  //       fileName: documentState.fileName,
+  //       filePath: documentState.filePath,
+  //     },
+  //     onHostError: (error) =>
+  //       postToHost({
+  //         type: 'webviewError',
+  //         ...error,
+  //       }),
+  //   }).value;
+  //
+  //   isApplyingRemoteChangeRef.current = true;
+  //   editor.tf.withoutSaving(() => {
+  //     editor.tf.setValue(nextValue);
+  //   });
+  //
+  //   try {
+  //     lastSyncedMarkdownRef.current = serializePlateValueToMarkdown(editor, nextValue);
+  //   } catch {
+  //     lastSyncedMarkdownRef.current = '';
+  //   }
+  //
+  //   queueMicrotask(() => {
+  //     isApplyingRemoteChangeRef.current = false;
+  //   });
+  // }, [documentState.fileName, documentState.filePath, documentState.markdown, editor]);
+  //
+  // const onValueChange = React.useCallback(
+  //   ({ editor, value }: { editor: { children: Value }; value: Value }) => {
+  //     if (isApplyingRemoteChangeRef.current) {
+  //       return;
+  //     }
+  //
+  //     let markdown = '';
+  //
+  //     try {
+  //       markdown = serializePlateValueToMarkdown(editor as never, value);
+  //     } catch {
+  //       markdown = '';
+  //     }
+  //
+  //     if (markdown === lastSyncedMarkdownRef.current) {
+  //       return;
+  //     }
+  //
+  //     lastSyncedMarkdownRef.current = markdown;
+  //     postToHost({
+  //       type: 'documentChanged',
+  //       markdown,
+  //     });
+  //   },
+  //   []
+  // );
 
   // - New
 
-  const { isApplyingRemoteChangeRef, lastSyncedMarkdownRef, revisionRef } = hostSync;
-
-  // end-fork-mutate panes
-  // fork-add external-reload
-
-  // The host's revision of the text the editor holds — a write built on an older one is dropped
-  // fork-delete panes
-
-  // const revisionRef = React.useRef<number | undefined>(undefined);
-
-  // end-fork-delete panes
-
-  // end-fork-add external-reload
+  // - The host's text into the panes — an echo of their own write not taken; their changes sent by
+  //   the host sync plugin, from whichever pane typed
 
   React.useEffect(() => {
-    // fork-add panes
-
-    // - The first pane's — the others take its every change
-
-    if (!paneRef.current.primary) return;
-
-    // end-fork-add panes
-    // fork-add external-reload
-
-    // - A text from outside the editor has not taken yet
-
-    const behind = documentState.revision !== revisionRef.current;
-    revisionRef.current = documentState.revision;
-
-    // end-fork-add external-reload
-    const incomingMarkdown = normalizeLineEndings(documentState.markdown);
-    const canonicalIncomingMarkdown = canonicalizeMarkdown(incomingMarkdown);
-    const canonicalLastSyncedMarkdown = canonicalizeMarkdown(lastSyncedMarkdownRef.current);
-
-    if (canonicalIncomingMarkdown === canonicalLastSyncedMarkdown) {
-      return;
-    }
-
-    try {
-      const currentMarkdown = serializePlateValueToMarkdown(
-        editor as never,
-        editor.children as Value
-      );
-
-      if (canonicalizeMarkdown(currentMarkdown) === canonicalIncomingMarkdown) {
-        lastSyncedMarkdownRef.current = incomingMarkdown;
-        return;
-      }
-    } catch {
-      // Best effort comparison only.
-    }
-
-    let isEditorFocused = false;
-    try {
-      const editorElement = editor.api.toDOMNode(editor) as HTMLElement;
-      isEditorFocused = !!editorElement && editorElement.contains(document.activeElement);
-    } catch {
-      const fallbackEditor = document.querySelector('[data-slate-editor]') as HTMLElement | null;
-      isEditorFocused = !!fallbackEditor && fallbackEditor.contains(document.activeElement);
-    }
-
-    // fork-mutate external-reload
-
-    // - Old
-
-    // // Ignore stale/echoed remote updates while the user is actively typing.
-    // if (isEditorFocused && lastSyncedMarkdownRef.current.length > 0) {
-    //   return;
-    // }
-
-    // - New
-
-    // An echo of this editor's own typing waits; a change from outside does not
-    if (
-      !documentState.external &&
-      !behind &&
-      isEditorFocused &&
-      lastSyncedMarkdownRef.current.length > 0
-    ) {
-      return;
-    }
-
-    // end-fork-mutate external-reload
-
-    const nextValue = deserializeMarkdownToPlateValue(incomingMarkdown, {
-      context: {
-        fileName: documentState.fileName,
-        filePath: documentState.filePath,
-      },
-      onHostError: (error) =>
-        postToHost({
-          type: 'webviewError',
-          ...error,
-        }),
-    }).value;
-
-    // fork-add external-reload
-
-    const selection = editor.selection;
-
-    // end-fork-add external-reload
-    // fork-add fold-state
-
-    const kept = keepBlocks(editor.children, nextValue, selection);
-
-    // end-fork-add fold-state
-
-    isApplyingRemoteChangeRef.current = true;
-    // fork-mutate external-reload
-
-    // - Old
-
-    // editor.tf.withoutSaving(() => {
-    //   editor.tf.setValue(nextValue);
-    // });
-
-    // - New
-
-    // - The one document across the panes: this one takes the text and keeps its caret on it, every
-    //   other pane takes the text whole
-
-    takeDocument(editor, () => {
-      editor.tf.setValue(nextValue);
-      keepSelection(editor, kept);
-    });
-
-    // end-fork-mutate external-reload
-
-    try {
-      lastSyncedMarkdownRef.current = serializePlateValueToMarkdown(editor, nextValue);
-    } catch {
-      lastSyncedMarkdownRef.current = '';
-    }
-
-    queueMicrotask(() => {
-      isApplyingRemoteChangeRef.current = false;
-    });
-    // fork-mutate external-reload
-
-    // - Old
-
-    // }, [documentState.fileName, documentState.filePath, documentState.markdown, editor]);
-
-    // - New
-
-    // - A text from outside equal to the one held — the revision alone moves
+    takeHostText(editor, documentState, (error) => postToHost({ type: 'webviewError', ...error }));
   }, [
     documentState.fileName,
     documentState.filePath,
@@ -315,53 +251,8 @@ function MarkdownEditor({
     documentState.revision,
     editor,
   ]);
-  // end-fork-mutate external-reload
 
-  const onValueChange = React.useCallback(
-    ({ editor, value }: { editor: { children: Value }; value: Value }) => {
-      // fork-add panes
-
-      if (!paneRef.current.primary) return;
-
-      // end-fork-add panes
-      if (isApplyingRemoteChangeRef.current) {
-        return;
-      }
-
-      let markdown = '';
-
-      try {
-        markdown = serializePlateValueToMarkdown(editor as never, value);
-      } catch {
-        markdown = '';
-      }
-
-      if (markdown === lastSyncedMarkdownRef.current) {
-        return;
-      }
-
-      lastSyncedMarkdownRef.current = markdown;
-      // fork-mutate external-reload
-
-      // - Old
-
-      // postToHost({
-      //   type: 'documentChanged',
-      //   markdown,
-      // });
-
-      // - New
-
-      postToHost({
-        type: 'documentChanged',
-        markdown,
-        revision: revisionRef.current,
-      });
-
-      // end-fork-mutate external-reload
-    },
-    []
-  );
+  // end-fork-mutate edit-stability
 
   const onCopy = React.useCallback(
     (event: React.ClipboardEvent<HTMLDivElement>) => {
@@ -411,7 +302,15 @@ function MarkdownEditor({
 
   return (
     <ErrorBoundary label="Editor">
-      <Plate editor={editor} onValueChange={onValueChange} readOnly={documentState.readOnly}>
+      <Plate
+        editor={editor}
+        // fork-delete edit-stability
+
+        // onValueChange={onValueChange}
+
+        // end-fork-delete edit-stability
+        readOnly={documentState.readOnly}
+      >
         <div className="h-full w-full bg-background text-foreground">
           <EditorContainer variant="default">
             <Editor

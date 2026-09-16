@@ -14,8 +14,8 @@ zoomed in there, the caret its.
 
 The singletons — the three dots, the magnifier, the bar's toggle, the plus, the bar, the find — act
 on the focused pane alone: the spotlight opens and jumps there, `mod+f` finds there, the bar's
-buttons are its; an unfocused pane's find closes. The host — its text in, the editor's out, exports
-— talks to the first pane; the others take its every change.
+buttons are its; an unfocused pane's find closes. The host's exports are the first pane's; its text
+in and the editor's out, any pane's — edit-stability.
 
 A pane is an editor of its own; the document is one. Each pane's plugin runs first in the kit and
 sends the flush's own operations on to every other pane, applied as they are — the ids kept, out of
@@ -28,7 +28,7 @@ Files:
 - `src/webview/components/ui/panes.tsx` — ours: the column, the corner buttons, the grip, the drag, the ring
 - `src/webview/components/app/pane-add-button.tsx` — ours: the plus
 - `src/webview/components/editor/plugins/panes-kit.tsx` — ours
-- `src/webview/App.tsx` — the editor per pane; the host's sync the first pane's; focus, find, pin
+- `src/webview/App.tsx` — the editor per pane; exports the first pane's; focus, find, pin
 - `src/webview/components/app/appearance-menu.tsx` — the plus, in the bar
 - `src/webview/components/editor/editor-kit.tsx` — the kit, first
 - `src/webview/components/ui/spotlight.tsx` — the focused pane's; a pinned one's pick in a new pane

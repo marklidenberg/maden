@@ -16,6 +16,19 @@ export function activate(context: vscode.ExtensionContext): void {
   // end-fork-add spotlight
 }
 
-export function deactivate(): void {
-  // no-op
+// fork-mutate edit-stability
+
+// - Old
+
+// export function deactivate(): void {
+//   // no-op
+// }
+
+// - New
+
+// The webview writes still pending — made, not lost with the window
+export function deactivate(): Promise<void> {
+  return MadenMarkdownEditorProvider.flushPendingWrites();
 }
+
+// end-fork-mutate edit-stability

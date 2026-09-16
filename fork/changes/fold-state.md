@@ -15,5 +15,6 @@ them. Zooms and toggles hold by ids too, and stay.
 Files:
 
 - `src/webview/lib/keep-blocks.ts` — ours: pairs, ids, the selection
-- `src/webview/App.tsx` — ids carried before the value is set; the caret put back through them
+- `src/webview/lib/host-sync.ts` — edit-stability's: ids carried before the value is set; the caret
+  put back through them
 - `tests/unit/fold-state.test.ts` — ours

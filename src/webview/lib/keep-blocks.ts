@@ -51,9 +51,18 @@ const likeness = (a: Block, b: Block): number => {
 const MAX_CELLS = 1_000_000;
 
 // Old blocks paired with new, in order — as many as can be, the likest
-export const pairBlocks = (previous: TElement[], next: TElement[]): [number, number][] => {
-  const a = previous.map(describe);
-  const b = next.map(describe);
+// fork-mutate session
+
+// - Old
+
+// export const pairBlocks = (previous: TElement[], next: TElement[]): [number, number][] => {
+//   const a = previous.map(describe);
+//   const b = next.map(describe);
+
+// - New
+
+const pairDescribed = (a: Block[], b: Block[]): [number, number][] => {
+  // end-fork-mutate session
 
   // - The same head and tail, as they stand
 
@@ -107,6 +116,34 @@ export const pairBlocks = (previous: TElement[], next: TElement[]): [number, num
 
   return pairs;
 };
+
+// fork-add session
+
+export const pairBlocks = (previous: TElement[], next: TElement[]): [number, number][] =>
+  pairDescribed(previous.map(describe), next.map(describe));
+
+// A document as stored — each block's shape and text
+export type Outline = { shape: string; text: string }[];
+
+export const outlineOf = (nodes: TElement[]): Outline =>
+  nodes.map((node) => {
+    const { shape, text } = describe(node);
+
+    return { shape, text };
+  });
+
+// A stored document's blocks paired with a document's — the same where shape and text are
+export const pairOutline = (outline: Outline, nodes: TElement[]): [number, number][] => {
+  const asBlock = ({ shape, text }: Outline[number]): Block => ({
+    content: JSON.stringify([shape, text]),
+    shape,
+    text,
+  });
+
+  return pairDescribed(outline.map(asBlock), outlineOf(nodes).map(asBlock));
+};
+
+// end-fork-add session
 
 // The blocks a new value leaves standing keep their ids — folds hold by them. The selection, moved
 // onto its blocks

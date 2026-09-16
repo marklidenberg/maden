@@ -314,7 +314,19 @@ function MarkdownEditor({
         <div className="h-full w-full bg-background text-foreground">
           <EditorContainer variant="default">
             <Editor
-              autoFocus
+              // fork-mutate session
+
+              // - Old
+
+              // autoFocus
+
+              // - New
+
+              // The focused pane's alone — each pane's would take the focus in turn, the last keeping it
+
+              autoFocus={pane.focused}
+
+              // end-fork-mutate session
               className="page-content"
               onCopy={onCopy}
               variant={wideMode ? 'fullWidth' : 'default'}

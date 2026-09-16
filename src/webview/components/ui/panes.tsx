@@ -102,7 +102,7 @@ export function Panes({
     restored.views.forEach((view, id) => {
       const editor = paneEditor(id);
 
-      if (editor) applyView(editor, view);
+      if (editor) applyView(editor, view, restored.outline);
     });
   }, [restored]);
 

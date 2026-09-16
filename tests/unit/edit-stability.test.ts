@@ -180,6 +180,26 @@ describe('across the panes', () => {
     expect(texts(b)).toEqual(texts(a));
     expect(b.children.map((node) => node.id)).toEqual(a.children.map((node) => node.id));
   });
+  // fork-add session
+
+  it('forwards nothing a pane did before it took the whole document', () => {
+    const a = createEditor();
+
+    register('a', a);
+    takeHostText(a, hostText(SOURCE));
+
+    const b = createEditor();
+    const children = a.children;
+
+    b.tf.setNodes({ id: 'opened-on-nothing' }, { at: [0] });
+    register('b', b);
+    forwardChange(b);
+
+    expect(a.children).toBe(children);
+    expect(b.children.map((node) => node.id)).toEqual(a.children.map((node) => node.id));
+  });
+
+  // end-fork-add session
 });
 
 describe('the history', () => {

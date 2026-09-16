@@ -3,6 +3,12 @@
 'use client';
 
 import { PanePlugin } from '@/lib/panes';
+// fork-add edit-stability
+
+import { HostSyncPlugin } from '@/lib/host-sync';
+import { HistoryGuardPlugin } from '@/lib/panes';
+
+// end-fork-add edit-stability
 // fork-add session
 
 import { SessionPlugin } from '@/lib/session';
@@ -18,7 +24,19 @@ import { SessionPlugin } from '@/lib/session';
 
 // - New
 
-export const PanesKit = [PanePlugin, SessionPlugin];
+// fork-mutate edit-stability
+
+// - Old
+
+// export const PanesKit = [PanePlugin, SessionPlugin];
+
+// - New
+
+// The host sync after it — the change forwarded to every pane, then sent to the host
+
+export const PanesKit = [PanePlugin, HostSyncPlugin, HistoryGuardPlugin, SessionPlugin];
+
+// end-fork-mutate edit-stability
 
 // end-fork-mutate session
 

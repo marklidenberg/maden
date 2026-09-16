@@ -8,6 +8,7 @@ import { NodeApi } from 'platejs';
 import { createPlatePlugin, usePluginOption } from 'platejs/react';
 
 import { FoldPlugin } from '@/lib/fold';
+import { type Outline, outlineOf, pairOutline } from '@/lib/keep-blocks';
 import { keepSelection } from '@/lib/keep-selection';
 import { getZoom, getZoomView, NodeZoomPlugin, zoomAt } from '@/lib/node-zoom';
 import { type PanesState, addPane, initialPanes } from '@/lib/panes';
@@ -18,8 +19,12 @@ type Block = { at: number; text: string };
 // A pane's view: its zooms, outermost first; its folds; its caret.
 export type PaneView = { caret: TRange | null; folded: Block[]; zooms: Block[] };
 
-// A file's panes as they were left, in order.
-export type Session = { focused: number; panes: { pinned: boolean; view: PaneView }[] };
+// A file's panes as they were left, in order; the document they held — absent in an older session.
+export type Session = {
+  focused: number;
+  outline?: Outline;
+  panes: { pinned: boolean; view: PaneView }[];
+};
 
 // - Kept per file
 
@@ -73,13 +78,15 @@ const findBlock = (texts: string[], { at, text }: Block): number | undefined => 
   return undefined;
 };
 
-// Put back onto the document as it stands — a block not found, dropped.
-export const applyView = (editor: SlateEditor, view: PaneView) => {
+// Put back onto the document as it stands — a block paired with the document as it was left, else
+// found by its text, else dropped.
+export const applyView = (editor: SlateEditor, view: PaneView, outline?: Outline) => {
   const children = editor.children;
   const texts = children.map((node) => NodeApi.string(node));
+  const paired = new Map(outline ? pairOutline(outline, children) : []);
   const found = (blocks: Block[]) =>
     blocks.flatMap((block) => {
-      const at = findBlock(texts, block);
+      const at = paired.get(block.at) ?? findBlock(texts, block);
 
       return at === undefined ? [] : [at];
     });
@@ -97,7 +104,16 @@ export const applyView = (editor: SlateEditor, view: PaneView) => {
 
   // - The caret; outside the zoom — at its root's end
 
-  keepSelection(editor, view.caret);
+  const follow = (point: TRange['anchor']) => {
+    const at = paired.get(point.path[0]);
+
+    return at === undefined ? point : { ...point, path: [at, ...point.path.slice(1)] };
+  };
+
+  keepSelection(
+    editor,
+    view.caret && { anchor: follow(view.caret.anchor), focus: follow(view.caret.focus) }
+  );
 
   const zoom = getZoomView(children, getZoom(stack));
   const inZoom = (path?: number[]) => !!path && path[0] >= zoom!.start && path[0] < zoom!.stop;
@@ -112,7 +128,7 @@ export const applyView = (editor: SlateEditor, view: PaneView) => {
 // As they were left — ids new, each pane's view to put back once it holds the document.
 export const restorePanes = (
   session: Session | null
-): { state: PanesState; views: Map<string, PaneView> } => {
+): { outline?: Outline; state: PanesState; views: Map<string, PaneView> } => {
   let state = initialPanes();
 
   if (!session) return { state, views: new Map() };
@@ -124,6 +140,7 @@ export const restorePanes = (
   const ids = state.panes.map((pane) => pane.id);
 
   return {
+    outline: session.outline,
     state: {
       focused: ids[session.focused] ?? ids[0],
       panes: ids.map((id, index) => ({ id, pinned: session.panes[index].pinned })),
@@ -147,7 +164,11 @@ export const sessionOf = (
     panes.push({ pinned: !!pane.pinned, view: viewOf(editor) });
   }
 
-  return { focused: state.panes.findIndex((pane) => pane.id === state.focused), panes };
+  return {
+    focused: state.panes.findIndex((pane) => pane.id === state.focused),
+    outline: outlineOf(editorOf(state.panes[0].id)!.children),
+    panes,
+  };
 };
 
 // - A move — the session saved a moment after the last

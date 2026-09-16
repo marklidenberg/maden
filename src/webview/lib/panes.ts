@@ -134,9 +134,26 @@ export const holdDocument = (editor: SlateEditor) => {
 
 export const hasOwnOperations = (editor: SlateEditor) => ownOperations(editor).length > 0;
 
+// fork-add session
+
+// A whole document taken — the flush's operations before it, onto a document gone, not forwarded: the
+// ids a pane gave the empty value it opened with, each pane's would have every other take it whole.
+const takenWhole = (editor: SlateEditor) => {
+  const { operations } = editor;
+
+  foreign.set(operations, [...(foreign.get(operations) ?? []), [0, operations.length]]);
+};
+
+// end-fork-add session
+
 // A pane given the whole document of another — the holding with it.
 const takeWhole = (editor: SlateEditor, source: SlateEditor) => {
   takeForeign(editor, () => editor.tf.setValue(structuredClone(source.children)));
+  // fork-add session
+
+  takenWhole(editor);
+
+  // end-fork-add session
 
   if (holding.has(source)) holding.add(editor);
 };
@@ -236,6 +253,11 @@ export const takeDocument = (editor: SlateEditor, take: () => void) => {
   holding.add(editor);
 
   // end-fork-add edit-stability
+  // fork-add session
+
+  takenWhole(editor);
+
+  // end-fork-add session
 
   editors.forEach((other) => {
     if (other === editor) return;

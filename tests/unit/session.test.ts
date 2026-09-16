@@ -5,6 +5,7 @@ import { createPlateEditor } from 'platejs/react';
 import { describe, expect, it } from 'vitest';
 
 import { FoldPlugin } from '../../src/webview/lib/fold';
+import { outlineOf } from '../../src/webview/lib/keep-blocks';
 import { deserializeMarkdownToPlateValue } from '../../src/webview/lib/markdown-plate-conversion';
 import { getZoom, NodeZoomPlugin, zoomIn } from '../../src/webview/lib/node-zoom';
 import { addPane, initialPanes, pinPane } from '../../src/webview/lib/panes';
@@ -73,6 +74,16 @@ describe('a pane view', () => {
     expect(editor.selection?.focus.path[0]).toBe(4);
   });
 
+  it('pairs a block retitled, a block of its shape new beside it', () => {
+    const editor = load(['# Title', '', '- one', '  - two', '- new', '- three 🔔', '  - four']);
+
+    applyView(editor, stored(), outlineOf(load().children));
+
+    expect(folded(editor)).toEqual(['one']);
+    expect(zoomed(editor)).toBe('three 🔔');
+    expect(editor.selection?.focus.path[0]).toBe(4);
+  });
+
   it('drops a block gone', () => {
     const editor = load(['# Title', '', '- one', '  - two']);
 
@@ -92,6 +103,7 @@ describe('the panes', () => {
 
     expect(restored.state.panes.map((pane) => pane.pinned)).toEqual([false, false, true]);
     expect(restored.state.focused).toBe(restored.state.panes[2].id);
+    expect(restored.outline).toEqual(outlineOf(load().children));
     expect([...restored.views.keys()]).toEqual(restored.state.panes.map((pane) => pane.id));
   });
 

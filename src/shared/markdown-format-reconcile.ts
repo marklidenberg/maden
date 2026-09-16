@@ -1,6 +1,6 @@
 // fork-add keep-indent
 
-import { keepFileIndent } from './keep-indent';
+import { keepFileIndent, keepMovedIndent, markListDepths } from './keep-indent';
 
 // end-fork-add keep-indent
 
@@ -305,6 +305,13 @@ export function reconcileMarkdownPreservingUnchangedFormatting(
   const previousSemantic = buildSemanticLines(previousLines);
   const nextSemantic = buildSemanticLines(nextLines);
 
+  // fork-add keep-indent
+
+  markListDepths(previousLines, previousSemantic);
+  markListDepths(nextLines, nextSemantic);
+
+  // end-fork-add keep-indent
+
   // If only markdown punctuation/formatting changed, preserve the original text verbatim.
   if (
     previousSemantic.length === nextSemantic.length &&
@@ -388,7 +395,21 @@ export function reconcileMarkdownPreservingUnchangedFormatting(
     }
   }
 
-  const merged = preserveUniquePreviousFormatting(previousLines, mergedLines).join('\n');
+  // fork-mutate keep-indent
+
+  // - Old
+
+  // const merged = preserveUniquePreviousFormatting(previousLines, mergedLines).join('\n');
+
+  // - New
+
+  const merged = keepMovedIndent(
+    previousLines,
+    mergedLines,
+    preserveUniquePreviousFormatting(previousLines, mergedLines)
+  ).join('\n');
+
+  // end-fork-mutate keep-indent
   if (nextNormalized.endsWith('\n') && !merged.endsWith('\n')) {
     return `${merged}\n`;
   }
